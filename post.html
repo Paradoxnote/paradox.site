@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>نوشته | پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: #090909;
+            color: #eee;
+        }
+
+        header {
+            background: #101010;
+            border-bottom: 1px solid #242424;
+        }
+
+        .nav {
+            width: min(1000px, calc(100% - 30px));
+            margin: auto;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        nav a {
+            color: #bbb;
+            text-decoration: none;
+            margin-right: 12px;
+        }
+
+        .container {
+            width: min(900px, calc(100% - 30px));
+            margin: 40px auto 70px;
+        }
+
+        .article {
+            background: #111;
+            border: 1px solid #272727;
+            border-radius: 15px;
+            padding: 35px;
+        }
+
+        .date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: clamp(30px, 5vw, 48px);
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .author {
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .author strong {
+            color: #ddd;
+        }
+
+        .text {
+            color: #ccc;
+            line-height: 2.3;
+            white-space: pre-wrap;
+            font-size: 16px;
+        }
+
+        .media {
+            margin-top: 30px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .media-item {
+            border: 1px solid #252525;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #080808;
+            padding: 12px;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            max-height: 700px;
+            object-fit: contain;
+            display: block;
+            margin: auto;
+        }
+
+        .file-link {
+            display: block;
+            color: #ddd;
+            text-decoration: none;
+            padding: 12px;
+        }
+
+        .file-link:hover {
+            background: #151515;
+        }
+
+        .comments {
+            margin-top: 25px;
+            background: #111;
+            border: 1px solid #272727;
+            border-radius: 15px;
+            padding: 28px;
+        }
+
+        .comments h2 {
+            margin-bottom: 20px;
+        }
+
+        .comment {
+            border-top: 1px solid #252525;
+            padding: 18px 0;
+        }
+
+        .comment:first-child {
+            border-top: 0;
+        }
+
+        .comment-author {
+            color: #ddd;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .comment-date {
+            color: #666;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+
+        .comment-text {
+            color: #aaa;
+            line-height: 2;
+            white-space: pre-wrap;
+        }
+
+        .login-note {
+            color: #777;
+            line-height: 2;
+            margin-top: 15px;
+        }
+
+        .login-note a {
+            color: #ddd;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 130px;
+            background: #0a0a0a;
+            color: white;
+            border: 1px solid #333;
+            border-radius: 7px;
+            padding: 13px;
+            resize: vertical;
+            margin-top: 10px;
+            outline: none;
+        }
+
+        button {
+            margin-top: 12px;
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 7px;
+            background: #eee;
+            color: #111;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: white;
+        }
+
+        .message {
+            color: #777;
+            text-align: center;
+            padding: 35px 10px;
+            line-height: 2;
+        }
+
+        @media (max-width: 600px) {
+            .article,
+            .comments {
+                padding: 22px;
+            }
+
+            .nav {
+                flex-direction: column;
+                padding: 14px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="nav">
+
+        <div class="logo">
+            پارادوکس
+        </div>
+
+        <nav>
+            <a href="main.html">مطالب</a>
+            <a href="profile.html">پروفایل</a>
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    <article id="articleBox" class="article">
+        <div class="message">
+            در حال دریافت نوشته...
+        </div>
+    </article>
+
+
+    <section class="comments">
+
+        <h2>
+            دیدگاه‌ها
+        </h2>
+
+        <div id="commentFormArea"></div>
+
+        <div id="commentsList">
+            <div class="message">
+                در حال دریافت دیدگاه‌ها...
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+
+    const postId =
+        new URLSearchParams(
+            window.location.search
+        ).get("id");
+
+
+    let currentUser = null;
+
+
+    function escapeHtml(text) {
+
+        return String(text ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function formatDate(value) {
+
+        return new Date(value)
+            .toLocaleDateString("fa-IR");
+    }
+
+
+    async function loadUser() {
+
+        const {
+            data: {
+                user
+            }
+        } = await supabaseClient.auth.getUser();
+
+        currentUser = user;
+
+        const area =
+            document.getElementById(
+                "commentFormArea"
+            );
+
+        if (!user) {
+
+            area.innerHTML = `
+                <div class="login-note">
+                    برای گذاشتن دیدگاه باید
+                    <a href="login.html">
+                        وارد حساب
+                    </a>
+                    شوید.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        area.innerHTML = `
+            <textarea
+                id="commentText"
+                maxlength="3000"
+                placeholder="دیدگاه خود را بنویسید..."
+            ></textarea>
+
+            <button id="commentButton">
+                ارسال دیدگاه
+            </button>
+
+            <div id="commentMessage"
+                 class="login-note">
+            </div>
+        `;
+
+
+        document
+            .getElementById("commentButton")
+            .addEventListener(
+                "click",
+                sendComment
+            );
+    }
+
+
+    async function loadPost() {
+
+        const {
+            data: post,
+            error
+        } = await supabaseClient
+            .from("posts")
+            .select(`
+                id,
+                title,
+                content,
+                created_at,
+                profiles (
+                    display_name,
+                    pen_name,
+                    avatar_url
+                ),
+                post_media (
+                    file_name,
+                    file_path,
+                    mime_type
+                )
+            `)
+            .eq("id", postId)
+            .eq("published", true)
+            .single();
+
+
+        const box =
+            document.getElementById(
+                "articleBox"
+            );
+
+
+        if (error || !post) {
+
+            box.innerHTML = `
+                <div class="message">
+                    این نوشته پیدا نشد.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        const author =
+            post.profiles?.pen_name ||
+            post.profiles?.display_name ||
+            "نویسنده پارادوکس";
+
+
+        let mediaHtml = "";
+
+
+        for (const file of
+             (post.post_media || [])) {
+
+            const type =
+                file.mime_type || "";
+
+
+            if (type.startsWith("image/")) {
+
+                mediaHtml += `
+                    <div class="media-item">
+                        <img
+                            src="${escapeHtml(file.file_path)}"
+                            alt="${escapeHtml(file.file_name)}"
+                        >
+                    </div>
+                `;
+
+            } else if (
+                type.startsWith("video/")
+            ) {
+
+                mediaHtml += `
+                    <div class="media-item">
+                        <video controls>
+                            <source
+                                src="${escapeHtml(file.file_path)}"
+                                type="${escapeHtml(type)}"
+                            >
+                        </video>
+                    </div>
+                `;
+
+            } else {
+
+                mediaHtml += `
+                    <div class="media-item">
+                        <a
+                            class="file-link"
+                            href="${escapeHtml(file.file_path)}"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            مشاهده / دریافت فایل:
+                            ${escapeHtml(file.file_name)}
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+
+        box.innerHTML = `
+
+            <div class="date">
+                ${formatDate(post.created_at)}
+            </div>
+
+            <h1>
+                ${escapeHtml(post.title)}
+            </h1>
+
+            <div class="author">
+                نوشته شده توسط:
+                <strong>
+                    ${escapeHtml(author)}
+                </strong>
+            </div>
+
+            <div class="text">
+                ${escapeHtml(post.content)}
+            </div>
+
+            ${
+                mediaHtml
+                ? `<div class="media">${mediaHtml}</div>`
+                : ""
+            }
+
+        `;
+    }
+
+
+    async function loadComments() {
+
+        const list =
+            document.getElementById(
+                "commentsList"
+            );
+
+
+        const {
+            data: comments,
+            error
+        } = await supabaseClient
+            .from("comments")
+            .select(`
+                id,
+                content,
+                created_at,
+                profiles (
+                    display_name,
+                    pen_name
+                )
+            `)
+            .eq("post_id", postId)
+            .order("created_at", {
+                ascending: true
+            });
+
+
+        if (error) {
+
+            list.innerHTML =
+                `<div class="message">
+                    خطا در دریافت دیدگاه‌ها.
+                </div>`;
+
+            return;
+        }
+
+
+        if (!comments.length) {
+
+            list.innerHTML =
+                `<div class="message">
+                    هنوز دیدگاهی ثبت نشده است.
+                </div>`;
+
+            return;
+        }
+
+
+        list.innerHTML = "";
+
+
+        for (const comment of comments) {
+
+            const author =
+                comment.profiles?.pen_name ||
+                comment.profiles?.display_name ||
+                "کاربر";
+
+
+            const item =
+                document.createElement("div");
+
+            item.className = "comment";
+
+            item.innerHTML = `
+
+                <div class="comment-author">
+                    ${escapeHtml(author)}
+                </div>
+
+                <div class="comment-date">
+                    ${formatDate(comment.created_at)}
+                </div>
+
+                <div class="comment-text">
+                    ${escapeHtml(comment.content)}
+                </div>
+
+            `;
+
+            list.appendChild(item);
+        }
+    }
+
+
+    async function sendComment() {
+
+        const text =
+            document
+                .getElementById("commentText")
+                .value
+                .trim();
+
+
+        const message =
+            document.getElementById(
+                "commentMessage"
+            );
+
+
+        if (!text) {
+
+            message.textContent =
+                "دیدگاه را بنویسید.";
+
+            return;
+        }
+
+
+        const {
+            error
+        } = await supabaseClient
+            .from("comments")
+            .insert({
+
+                post_id: postId,
+
+                user_id: currentUser.id,
+
+                content: text
+
+            });
+
+
+        if (error) {
+
+            message.textContent =
+                "خطا در ارسال دیدگاه: " +
+                error.message;
+
+            return;
+        }
+
+
+        document
+            .getElementById("commentText")
+            .value = "";
+
+
+        message.textContent =
+            "دیدگاه ثبت شد.";
+
+
+        loadComments();
+    }
+
+
+    async function start() {
+
+        if (!postId) {
+
+            document.getElementById(
+                "articleBox"
+            ).innerHTML = `
+                <div class="message">
+                    شناسهٔ نوشته مشخص نیست.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        await loadPost();
+        await loadComments();
+        await loadUser();
+    }
+
+
+    start();
+
+</script>
+
+</body>
+</html>
