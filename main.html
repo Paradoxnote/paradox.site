@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>پارادوکس | صفحه اصلی</title>
+    <title>پارادوکس | مطالب</title>
 
     <style>
         * {
@@ -15,128 +14,97 @@
 
         body {
             font-family: Tahoma, Arial, sans-serif;
-            background: #0b0b0b;
-            color: #f1f1f1;
-            min-height: 100vh;
+            background: #090909;
+            color: #f2f2f2;
         }
-
-        /* نوار بالایی */
 
         header {
             position: sticky;
             top: 0;
-            z-index: 1000;
-            background: rgba(10, 10, 10, 0.95);
-            border-bottom: 1px solid #252525;
+            z-index: 10;
+            background: rgba(10,10,10,.96);
+            border-bottom: 1px solid #242424;
             backdrop-filter: blur(10px);
         }
 
         .nav {
-            max-width: 1250px;
+            width: min(1200px, calc(100% - 30px));
             margin: auto;
-            min-height: 75px;
-            padding: 0 25px;
-
+            min-height: 72px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 20px;
         }
 
-        .site-logo {
-            font-size: 28px;
+        .logo {
+            font-size: 27px;
             font-weight: bold;
             letter-spacing: 4px;
-            white-space: nowrap;
         }
 
         .menu {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .menu a {
-            color: #ccc;
+            color: #bbb;
             text-decoration: none;
-            padding: 11px 15px;
+            padding: 10px 13px;
             border-radius: 6px;
-            transition: 0.25s;
-            font-size: 14px;
         }
 
-        .menu a:hover,
-        .menu a.active {
-            background: #202020;
-            color: #fff;
+        .menu a:hover {
+            color: white;
+            background: #1c1c1c;
         }
-
-        .profile-button {
-            border: 1px solid #333;
-        }
-
-        /* بدنه */
 
         .container {
-            max-width: 1250px;
+            width: min(1200px, calc(100% - 30px));
             margin: auto;
-            padding: 35px 25px 70px;
+            padding: 35px 0 70px;
         }
 
         .hero {
-            min-height: 300px;
-            border: 1px solid #252525;
-            border-radius: 14px;
-
-            display: flex;
-            align-items: flex-end;
-
             padding: 40px;
+            border: 1px solid #252525;
+            border-radius: 15px;
             margin-bottom: 35px;
 
             background:
                 linear-gradient(
                     to top,
-                    rgba(0,0,0,0.95),
-                    rgba(0,0,0,0.15)
+                    rgba(0,0,0,.95),
+                    rgba(0,0,0,.2)
                 ),
                 radial-gradient(
                     circle at 20% 20%,
                     #303030,
-                    #111 60%,
-                    #090909
+                    #101010 65%
                 );
         }
 
-        .hero-content {
-            max-width: 750px;
-        }
-
-        .hero-label {
-            display: inline-block;
-            color: #aaa;
-            font-size: 13px;
-            margin-bottom: 12px;
+        .hero small {
+            color: #888;
         }
 
         .hero h1 {
-            font-size: clamp(30px, 5vw, 55px);
-            margin-bottom: 15px;
+            margin: 12px 0;
+            font-size: clamp(32px, 5vw, 56px);
         }
 
         .hero p {
-            color: #bbb;
+            color: #aaa;
             line-height: 2;
         }
 
-        /* عنوان بخش */
-
         .section-title {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 18px;
         }
 
         .section-title h2 {
@@ -144,11 +112,9 @@
         }
 
         .section-title span {
-            color: #777;
+            color: #666;
             font-size: 13px;
         }
-
-        /* نوشته ها */
 
         .posts {
             display: grid;
@@ -156,114 +122,105 @@
             gap: 20px;
         }
 
-        .post-card {
-            background: #111;
-            border: 1px solid #242424;
-            border-radius: 12px;
+        .card {
             overflow: hidden;
-            transition: 0.25s;
+            border: 1px solid #252525;
+            border-radius: 12px;
+            background: #111;
+            transition: .2s;
         }
 
-        .post-card:hover {
-            transform: translateY(-4px);
-            border-color: #444;
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: #3a3a3a;
         }
 
-        .post-image {
+        .cover {
             height: 190px;
-
+            background: #171717;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            background:
-                linear-gradient(135deg, #272727, #0e0e0e);
-            color: #777;
-            font-size: 15px;
+            overflow: hidden;
         }
 
-        .post-content {
-            padding: 20px;
+        .cover img,
+        .cover video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .post-category {
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-
-        .post-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            line-height: 1.7;
-        }
-
-        .post-card p {
-            color: #999;
-            font-size: 14px;
-            line-height: 2;
-            min-height: 55px;
-        }
-
-        .post-meta {
-            border-top: 1px solid #242424;
-            margin-top: 18px;
-            padding-top: 13px;
-
-            display: flex;
-            justify-content: space-between;
-
-            color: #666;
-            font-size: 12px;
-        }
-
-        /* جعبه ها */
-
-        .quick-sections {
-            margin-top: 45px;
-
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .quick-box {
-            border: 1px solid #242424;
-            background: #111;
-            border-radius: 12px;
-            padding: 25px;
-        }
-
-        .quick-box h3 {
-            margin-bottom: 10px;
-        }
-
-        .quick-box p {
-            color: #888;
-            line-height: 2;
-            font-size: 14px;
-        }
-
-        .quick-box a {
-            display: inline-block;
-            margin-top: 18px;
-            color: #ddd;
-            text-decoration: none;
-            border-bottom: 1px solid #555;
-            padding-bottom: 4px;
-        }
-
-        /* پایین سایت */
-
-        footer {
-            border-top: 1px solid #222;
-            padding: 30px 20px;
-            text-align: center;
+        .no-cover {
             color: #666;
             font-size: 13px;
         }
 
-        /* نمایش در موبایل */
+        .content {
+            padding: 20px;
+        }
+
+        .date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 9px;
+        }
+
+        .content h3 {
+            font-size: 20px;
+            line-height: 1.7;
+            margin-bottom: 9px;
+        }
+
+        .excerpt {
+            color: #999;
+            line-height: 2;
+            font-size: 14px;
+            min-height: 55px;
+            white-space: pre-wrap;
+        }
+
+        .author {
+            margin-top: 18px;
+            padding-top: 13px;
+            border-top: 1px solid #252525;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .author strong {
+            color: #ccc;
+        }
+
+        .read {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 15px;
+            border: 1px solid #333;
+            color: #ddd;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .read:hover {
+            background: #eee;
+            color: #111;
+        }
+
+        .message {
+            color: #888;
+            padding: 35px 10px;
+            text-align: center;
+        }
+
+        footer {
+            border-top: 1px solid #222;
+            padding: 30px 15px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
 
         @media (max-width: 900px) {
             .posts {
@@ -271,34 +228,19 @@
             }
         }
 
-        @media (max-width: 650px) {
+        @media (max-width: 620px) {
             .nav {
-                padding: 15px;
+                padding: 13px 0;
                 align-items: flex-start;
                 flex-direction: column;
             }
 
-            .menu {
-                width: 100%;
-            }
-
-            .menu a {
-                font-size: 13px;
-                padding: 9px 11px;
-            }
-
-            .container {
-                padding: 25px 15px 50px;
+            .posts {
+                grid-template-columns: 1fr;
             }
 
             .hero {
                 padding: 25px;
-                min-height: 270px;
-            }
-
-            .posts,
-            .quick-sections {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -307,244 +249,194 @@
 <body>
 
 <header>
-    <nav class="nav">
+    <div class="nav">
 
-        <div class="site-logo">
-            پارادوکس
-        </div>
+        <div class="logo">پارادوکس</div>
 
-        <div class="menu">
+        <nav class="menu">
+            <a href="main.html">مطالب</a>
+            <a href="login.html">ورود / ثبت نام</a>
+            <a href="writers.html">ورود نویسندگان</a>
+            <a href="profile.html">پروفایل</a>
+        </nav>
 
-            <a href="main.html" class="active">
-                مطالب
-            </a>
-
-            <a href="login.html">
-                ورود / ثبت نام
-            </a>
-
-            <a href="writers.html">
-                ورود نویسندگان
-            </a>
-
-            <a href="profile.html" class="profile-button">
-                پروفایل
-            </a>
-
-        </div>
-
-    </nav>
+    </div>
 </header>
-
 
 <main class="container">
 
-    <!-- بخش اصلی -->
-
     <section class="hero">
-
-        <div class="hero-content">
-
-            <span class="hero-label">
-                به پارادوکس خوش آمدید
-            </span>
-
-            <h1>
-                نوشته‌های تازه را دنبال کنید
-            </h1>
-
-            <p>
-                اینجا محل انتشار نوشته‌ها، داستان‌ها، فیلم‌ها،
-                تصویرها و فایل‌های اعضای پارادوکس است.
-            </p>
-
-        </div>
-
+        <small>وبگاه پارادوکس</small>
+        <h1>آخرین نوشته‌ها</h1>
+        <p>
+            نوشته‌ها، داستان‌ها، فیلم‌ها، تصویرها و فایل‌های منتشرشده
+            توسط اعضای پارادوکس.
+        </p>
     </section>
-
-
-    <!-- مطالب -->
 
     <div class="section-title">
-
-        <h2>
-            آخرین مطالب
-        </h2>
-
-        <span>
-            تازه‌ترین نوشته‌ها
-        </span>
-
+        <h2>مطالب</h2>
+        <span id="postCount">در حال بارگذاری...</span>
     </div>
 
-
-    <section class="posts">
-
-        <article class="post-card">
-
-            <div class="post-image">
-                جای تصویر نوشته
-            </div>
-
-            <div class="post-content">
-
-                <div class="post-category">
-                    داستان
-                </div>
-
-                <h3>
-                    اولین نوشتهٔ پارادوکس
-                </h3>
-
-                <p>
-                    این بخش بعداً به نوشته‌های واقعی
-                    ذخیره‌شده در Supabase متصل خواهد شد.
-                </p>
-
-                <div class="post-meta">
-
-                    <span>
-                        نویسنده
-                    </span>
-
-                    <span>
-                        امروز
-                    </span>
-
-                </div>
-
-            </div>
-
-        </article>
-
-
-        <article class="post-card">
-
-            <div class="post-image">
-                جای تصویر
-            </div>
-
-            <div class="post-content">
-
-                <div class="post-category">
-                    فیلم
-                </div>
-
-                <h3>
-                    یک مطلب دیگر
-                </h3>
-
-                <p>
-                    تصویر، ویدئو و فایل‌های نوشته
-                    در این بخش نمایش داده خواهند شد.
-                </p>
-
-                <div class="post-meta">
-
-                    <span>
-                        نویسنده
-                    </span>
-
-                    <span>
-                        امروز
-                    </span>
-
-                </div>
-
-            </div>
-
-        </article>
-
-
-        <article class="post-card">
-
-            <div class="post-image">
-                جای تصویر
-            </div>
-
-            <div class="post-content">
-
-                <div class="post-category">
-                    نوشته
-                </div>
-
-                <h3>
-                    شروع داستان پارادوکس
-                </h3>
-
-                <p>
-                    بعداً این مطالب به صورت خودکار
-                    از پایگاه داده خوانده می‌شوند.
-                </p>
-
-                <div class="post-meta">
-
-                    <span>
-                        نویسنده
-                    </span>
-
-                    <span>
-                        امروز
-                    </span>
-
-                </div>
-
-            </div>
-
-        </article>
-
-    </section>
-
-
-    <!-- بخش های دیگر -->
-
-    <section class="quick-sections">
-
-        <div class="quick-box">
-
-            <h3>
-                ورود به حساب
-            </h3>
-
-            <p>
-                برای دیدن مطالب و گذاشتن دیدگاه
-                حساب خود را بسازید یا وارد شوید.
-            </p>
-
-            <a href="login.html">
-                ورود / ثبت نام
-            </a>
-
-        </div>
-
-
-        <div class="quick-box">
-
-            <h3>
-                نویسندگان پارادوکس
-            </h3>
-
-            <p>
-                نویسندگان می‌توانند نوشته،
-                تصویر، ویدئو و فایل خود را منتشر کنند.
-            </p>
-
-            <a href="writers.html">
-                ورود نویسندگان
-            </a>
-
-        </div>
-
+    <section id="posts" class="posts">
+        <div class="message">در حال دریافت نوشته‌ها...</div>
     </section>
 
 </main>
 
-
 <footer>
-
-    © پارادوکس — تمامی مطالب توسط اعضای سایت منتشر می‌شوند.
-
+    © پارادوکس
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+    function escapeHtml(text) {
+        return String(text ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function formatDate(value) {
+        return new Date(value).toLocaleDateString("fa-IR");
+    }
+
+    async function loadPosts() {
+
+        const postsBox =
+            document.getElementById("posts");
+
+        const {
+            data: posts,
+            error
+        } = await supabaseClient
+            .from("posts")
+            .select(`
+                id,
+                title,
+                content,
+                created_at,
+                profiles (
+                    display_name,
+                    pen_name,
+                    avatar_url
+                ),
+                post_media (
+                    file_path,
+                    file_name,
+                    mime_type
+                )
+            `)
+            .eq("published", true)
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+            postsBox.innerHTML =
+                `<div class="message">
+                    خطا در دریافت نوشته‌ها:
+                    ${escapeHtml(error.message)}
+                </div>`;
+            return;
+        }
+
+        document.getElementById("postCount").textContent =
+            `${posts.length} نوشته`;
+
+        if (!posts.length) {
+            postsBox.innerHTML =
+                `<div class="message">
+                    هنوز نوشته‌ای منتشر نشده است.
+                </div>`;
+            return;
+        }
+
+        postsBox.innerHTML = "";
+
+        for (const post of posts) {
+
+            const media =
+                (post.post_media || []).find(file =>
+                    file.mime_type &&
+                    file.mime_type.startsWith("image/")
+                );
+
+            const author =
+                post.profiles?.pen_name ||
+                post.profiles?.display_name ||
+                "نویسنده پارادوکس";
+
+            const excerpt =
+                post.content.length > 160
+                    ? post.content.slice(0, 160) + "..."
+                    : post.content;
+
+            const card =
+                document.createElement("article");
+
+            card.className = "card";
+
+            card.innerHTML = `
+                <div class="cover">
+                    ${
+                        media
+                        ? `<img src="${escapeHtml(media.file_path)}"
+                                alt="${escapeHtml(post.title)}">`
+                        : `<div class="no-cover">بدون تصویر</div>`
+                    }
+                </div>
+
+                <div class="content">
+
+                    <div class="date">
+                        ${formatDate(post.created_at)}
+                    </div>
+
+                    <h3>
+                        ${escapeHtml(post.title)}
+                    </h3>
+
+                    <div class="excerpt">
+                        ${escapeHtml(excerpt)}
+                    </div>
+
+                    <div class="author">
+                        نوشته شده توسط:
+                        <strong>
+                            ${escapeHtml(author)}
+                        </strong>
+                    </div>
+
+                    <a
+                        class="read"
+                        href="post.html?id=${encodeURIComponent(post.id)}"
+                    >
+                        خواندن نوشته
+                    </a>
+
+                </div>
+            `;
+
+            postsBox.appendChild(card);
+        }
+    }
+
+    loadPosts();
+</script>
 
 </body>
 </html>
