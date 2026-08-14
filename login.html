@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ورود و ثبت نام | پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #242424 0%, #101010 45%, #050505 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .page {
+            width: min(950px, 100%);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .box {
+            background: rgba(18, 18, 18, 0.96);
+            border: 1px solid #292929;
+            border-radius: 14px;
+            padding: 35px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        label {
+            display: block;
+            color: #bbb;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 17px;
+            border: 1px solid #333;
+            border-radius: 7px;
+            background: #0d0d0d;
+            color: white;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #777;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+            background: #eee;
+            color: #111;
+            font-size: 15px;
+            transition: .2s;
+        }
+
+        button:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .message {
+            min-height: 25px;
+            margin-top: 15px;
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            text-decoration: none;
+        }
+
+        .back:hover {
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- ورود -->
+
+    <section class="box">
+
+        <h2>ورود</h2>
+
+        <form id="loginForm">
+
+            <label for="loginEmail">
+                ایمیل
+            </label>
+
+            <input
+                type="email"
+                id="loginEmail"
+                required
+            >
+
+            <label for="loginPassword">
+                رمز عبور
+            </label>
+
+            <input
+                type="password"
+                id="loginPassword"
+                required
+            >
+
+            <button type="submit">
+                ورود
+            </button>
+
+        </form>
+
+        <div id="loginMessage" class="message"></div>
+
+    </section>
+
+
+    <!-- ثبت نام -->
+
+    <section class="box">
+
+        <h1>
+            پارادوکس
+        </h1>
+
+        <h2>ثبت نام</h2>
+
+        <form id="signupForm">
+
+            <label for="signupName">
+                نام نمایشی
+            </label>
+
+            <input
+                type="text"
+                id="signupName"
+                maxlength="40"
+                required
+            >
+
+            <label for="signupUsername">
+                نام کاربری
+            </label>
+
+            <input
+                type="text"
+                id="signupUsername"
+                maxlength="30"
+                required
+            >
+
+            <label for="signupEmail">
+                ایمیل
+            </label>
+
+            <input
+                type="email"
+                id="signupEmail"
+                required
+            >
+
+            <label for="signupPassword">
+                رمز عبور
+            </label>
+
+            <input
+                type="password"
+                id="signupPassword"
+                minlength="6"
+                required
+            >
+
+            <button type="submit">
+                ساخت حساب
+            </button>
+
+        </form>
+
+        <div id="signupMessage" class="message"></div>
+
+    </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+    // این دو مقدار را بعداً از Supabase می‌گیریم.
+    const SUPABASE_URL = "https://cnmkwfbgovwvyuzluera.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
+
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+    // -----------------------------
+    // ثبت نام
+    // -----------------------------
+
+    document
+        .getElementById("signupForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const name =
+                document.getElementById("signupName").value.trim();
+
+            const username =
+                document.getElementById("signupUsername").value.trim();
+
+            const email =
+                document.getElementById("signupEmail").value.trim();
+
+            const password =
+                document.getElementById("signupPassword").value;
+
+            const message =
+                document.getElementById("signupMessage");
+
+            message.textContent = "در حال ساخت حساب...";
+
+            const { data, error } =
+                await supabaseClient.auth.signUp({
+
+                    email: email,
+
+                    password: password,
+
+                    options: {
+                        data: {
+                            display_name: name,
+                            username: username
+                        }
+                    }
+
+                });
+
+            if (error) {
+
+                message.textContent =
+                    "خطا: " + error.message;
+
+                return;
+            }
+
+            message.textContent =
+                "حساب شما ساخته شد. اگر تأیید ایمیل فعال باشد، ایمیل خود را بررسی کنید.";
+
+        });
+
+
+    // -----------------------------
+    // ورود
+    // -----------------------------
+
+    document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("loginEmail").value.trim();
+
+            const password =
+                document.getElementById("loginPassword").value;
+
+            const message =
+                document.getElementById("loginMessage");
+
+            message.textContent =
+                "در حال ورود...";
+
+            const { data, error } =
+                await supabaseClient.auth.signInWithPassword({
+
+                    email: email,
+
+                    password: password
+
+                });
+
+
+            if (error) {
+
+                message.textContent =
+                    "خطا: " + error.message;
+
+                return;
+            }
+
+            message.textContent =
+                "ورود انجام شد.";
+
+            setTimeout(function() {
+
+                window.location.href = "main.html";
+
+            }, 800);
+
+        });
+
+</script>
+
+</body>
+</html>
