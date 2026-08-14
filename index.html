@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top, #232323 0%, #0d0d0d 45%, #050505 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .welcome {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .welcome-box {
+            width: min(800px, 100%);
+            padding: 60px 30px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            border: 2px solid #777;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: bold;
+            color: #ddd;
+            box-shadow:
+                0 0 25px rgba(255,255,255,0.08),
+                inset 0 0 25px rgba(255,255,255,0.05);
+        }
+
+        h1 {
+            font-size: clamp(42px, 8vw, 82px);
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 18px;
+            line-height: 2;
+            max-width: 600px;
+            margin: 0 auto 45px;
+        }
+
+        .enter-button {
+            display: inline-block;
+            padding: 15px 45px;
+            border: 1px solid #888;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: 0.25s;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            font-size: 17px;
+        }
+
+        .enter-button:hover {
+            background: #fff;
+            color: #111;
+            transform: translateY(-2px);
+        }
+
+        .warning {
+            margin-top: 35px;
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="welcome">
+        <section class="welcome-box">
+
+            <div class="logo">P</div>
+
+            <h1>پارادوکس</h1>
+
+            <p class="subtitle">
+                جایی برای نوشته‌ها، داستان‌ها، تصویرها، ویدئوها و فایل‌های شما.
+                <br>
+                وارد شوید و جهان پارادوکس را آغاز کنید.
+            </p>
+
+            <a href="main.html" class="enter-button">
+                ورود به پارادوکس
+            </a>
+
+            <p class="warning">
+                PARADOX
+            </p>
+
+        </section>
+    </main>
+
+</body>
+</html>
