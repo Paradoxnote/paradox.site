@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>مدیریت | پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: #090909;
+            color: #eee;
+        }
+
+        header {
+            background: #101010;
+            border-bottom: 1px solid #292929;
+        }
+
+        .nav {
+            width: min(1200px, calc(100% - 30px));
+            min-height: 70px;
+            margin: auto;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        nav a {
+            color: #aaa;
+            text-decoration: none;
+            margin-right: 14px;
+        }
+
+        .container {
+            width: min(1200px, calc(100% - 30px));
+            margin: 35px auto 70px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .intro {
+            color: #777;
+            margin-bottom: 30px;
+            line-height: 2;
+        }
+
+        .section {
+            background: #111;
+            border: 1px solid #292929;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+        }
+
+        .post,
+        .user {
+            border-top: 1px solid #252525;
+            padding: 18px 0;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .post:first-child,
+        .user:first-child {
+            border-top: 0;
+        }
+
+        .title {
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        .meta {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 9px 14px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: #171717;
+            color: #ddd;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #252525;
+        }
+
+        .danger {
+            border-color: #5a2b2b;
+        }
+
+        .danger:hover {
+            background: #3a1515;
+        }
+
+        .message {
+            color: #777;
+            padding: 20px 0;
+            line-height: 2;
+        }
+
+        .success {
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .post,
+            .user {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="nav">
+
+        <div class="logo">
+            پارادوکس
+        </div>
+
+        <nav>
+            <a href="main.html">مطالب</a>
+            <a href="profile.html">پروفایل</a>
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    <h1>مدیریت پارادوکس</h1>
+
+    <p class="intro">
+        این بخش فقط برای مالک سایت قابل دسترسی است.
+    </p>
+
+    <div id="accessMessage" class="message">
+        در حال بررسی دسترسی...
+    </div>
+
+
+    <section id="postsSection" class="section" hidden>
+
+        <h2>
+            مدیریت نوشته‌ها
+        </h2>
+
+        <div id="postsList">
+            <div class="message">
+                در حال بارگذاری...
+            </div>
+        </div>
+
+    </section>
+
+
+    <section id="usersSection" class="section" hidden>
+
+        <h2>
+            مدیریت کاربران و نویسندگان
+        </h2>
+
+        <div id="usersList">
+            <div class="message">
+                در حال بارگذاری...
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+
+    let currentUser = null;
+
+
+    function escapeHtml(text) {
+
+        return String(text ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function roleName(role) {
+
+        if (role === "owner") return "مالک";
+        if (role === "writer") return "نویسنده";
+
+        return "کاربر";
+    }
+
+
+    async function checkOwner() {
+
+        const {
+            data: {
+                user
+            }
+        } = await supabaseClient.auth.getUser();
+
+
+        if (!user) {
+
+            document.getElementById(
+                "accessMessage"
+            ).innerHTML = `
+                برای ورود ابتدا وارد حساب شوید.
+                <br>
+                <a href="login.html" style="color:#ddd;">
+                    ورود
+                </a>
+            `;
+
+            return false;
+        }
+
+
+        currentUser = user;
+
+
+        const {
+            data: profile,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+
+        if (error || !profile) {
+
+            document.getElementById(
+                "accessMessage"
+            ).textContent =
+                "پروفایل پیدا نشد.";
+
+            return false;
+        }
+
+
+        if (profile.role !== "owner") {
+
+            document.getElementById(
+                "accessMessage"
+            ).textContent =
+                "این بخش فقط برای مالک پارادوکس است.";
+
+            return false;
+        }
+
+
+        document.getElementById(
+            "accessMessage"
+        ).textContent =
+            "دسترسی مالک تأیید شد.";
+
+
+        document.getElementById(
+            "postsSection"
+        ).hidden = false;
+
+
+        document.getElementById(
+            "usersSection"
+        ).hidden = false;
+
+
+        await loadPosts();
+        await loadUsers();
+
+        return true;
+    }
+
+
+    async function loadPosts() {
+
+        const list =
+            document.getElementById(
+                "postsList"
+            );
+
+
+        const {
+            data: posts,
+            error
+        } = await supabaseClient
+            .from("posts")
+            .select(`
+                id,
+                title,
+                created_at,
+                profiles (
+                    display_name,
+                    pen_name
+                )
+            `)
+            .order("created_at", {
+                ascending: false
+            });
+
+
+        if (error) {
+
+            list.innerHTML =
+                `<div class="message">
+                    ${escapeHtml(error.message)}
+                </div>`;
+
+            return;
+        }
+
+
+        if (!posts.length) {
+
+            list.innerHTML =
+                `<div class="message">
+                    هنوز نوشته‌ای وجود ندارد.
+                </div>`;
+
+            return;
+        }
+
+
+        list.innerHTML = "";
+
+
+        for (const post of posts) {
+
+            const author =
+                post.profiles?.pen_name ||
+                post.profiles?.display_name ||
+                "بدون نام";
+
+
+            const div =
+                document.createElement("div");
+
+            div.className = "post";
+
+
+            div.innerHTML = `
+
+                <div>
+                    <div class="title">
+                        ${escapeHtml(post.title)}
+                    </div>
+
+                    <div class="meta">
+                        نویسنده:
+                        ${escapeHtml(author)}
+                        <br>
+                        تاریخ:
+                        ${new Date(
+                            post.created_at
+                        ).toLocaleDateString("fa-IR")}
+                    </div>
+                </div>
+
+
+                <div class="actions">
+
+                    <a
+                        href="post.html?id=${encodeURIComponent(post.id)}"
+                        target="_blank"
+                        style="
+                            color:#ccc;
+                            text-decoration:none;
+                            padding:9px 14px;
+                            border:1px solid #333;
+                            border-radius:6px;
+                        "
+                    >
+                        مشاهده
+                    </a>
+
+                    <button
+                        class="danger"
+                        onclick="deletePost('${post.id}')"
+                    >
+                        حذف نوشته
+                    </button>
+
+                </div>
+            `;
+
+            list.appendChild(div);
+        }
+    }
+
+
+    async function deletePost(postId) {
+
+        const confirmed =
+            confirm(
+                "این نوشته و فایل‌های مربوط به آن حذف می‌شوند. ادامه می‌دهید؟"
+            );
+
+
+        if (!confirmed) return;
+
+
+        /*
+         * ابتدا اطلاعات فایل‌ها را می‌گیریم
+         */
+
+        const {
+            data: media
+        } = await supabaseClient
+            .from("post_media")
+            .select("file_path")
+            .eq("post_id", postId);
+
+
+        /*
+         * حذف رکوردهای فایل از پایگاه داده
+         */
+
+        await supabaseClient
+            .from("post_media")
+            .delete()
+            .eq("post_id", postId);
+
+
+        /*
+         * حذف خود نوشته
+         */
+
+        const {
+            error
+        } = await supabaseClient
+            .from("posts")
+            .delete()
+            .eq("id", postId);
+
+
+        if (error) {
+
+            alert(
+                "حذف نوشته انجام نشد: " +
+                error.message
+            );
+
+            return;
+        }
+
+
+        /*
+         * فایل‌ها ممکن است بعداً از Storage
+         * نیز حذف شوند.
+         */
+
+        alert("نوشته حذف شد.");
+
+        loadPosts();
+    }
+
+
+    async function loadUsers() {
+
+        const list =
+            document.getElementById(
+                "usersList"
+            );
+
+
+        const {
+            data: users,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select(`
+                id,
+                username,
+                display_name,
+                pen_name,
+                role,
+                created_at
+            `)
+            .order("created_at", {
+                ascending: false
+            });
+
+
+        if (error) {
+
+            list.innerHTML =
+                `<div class="message">
+                    ${escapeHtml(error.message)}
+                </div>`;
+
+            return;
+        }
+
+
+        list.innerHTML = "";
+
+
+        for (const user of users) {
+
+            const div =
+                document.createElement("div");
+
+            div.className = "user";
+
+
+            div.innerHTML = `
+
+                <div>
+                    <div class="title">
+                        ${escapeHtml(
+                            user.display_name ||
+                            user.username ||
+                            "بدون نام"
+                        )}
+                    </div>
+
+                    <div class="meta">
+                        نام کاربری:
+                        ${escapeHtml(
+                            user.username || "-"
+                        )}
+
+                        <br>
+
+                        نقش:
+                        ${escapeHtml(
+                            roleName(user.role)
+                        )}
+
+                        <br>
+
+                        لقب:
+                        ${escapeHtml(
+                            user.pen_name || "-"
+                        )}
+                    </div>
+                </div>
+
+
+                <div class="actions">
+
+                    ${
+                        user.id === currentUser.id
+                        ? `<span class="meta">
+                            حساب شما
+                          </span>`
+                        : ""
+                    }
+
+                </div>
+            `;
+
+
+            list.appendChild(div);
+        }
+    }
+
+
+    checkOwner();
+
+</script>
+
+</body>
+</html>
