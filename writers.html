@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>نویسندگان | پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: #090909;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        header {
+            border-bottom: 1px solid #252525;
+            background: #101010;
+        }
+
+        .nav {
+            max-width: 1100px;
+            margin: auto;
+            min-height: 70px;
+            padding: 15px 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .nav a {
+            color: #bbb;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        .container {
+            width: min(850px, calc(100% - 30px));
+            margin: 40px auto;
+        }
+
+        .box {
+            background: #111;
+            border: 1px solid #292929;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .intro {
+            color: #888;
+            line-height: 2;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: #bbb;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: #0b0b0b;
+            color: #fff;
+            border: 1px solid #333;
+            border-radius: 7px;
+            outline: none;
+        }
+
+        input {
+            padding: 13px;
+            margin-bottom: 18px;
+        }
+
+        textarea {
+            min-height: 280px;
+            resize: vertical;
+            padding: 15px;
+            line-height: 2;
+            margin-bottom: 18px;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #777;
+        }
+
+        .file-box {
+            border: 1px dashed #444;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .file-help {
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.8;
+        }
+
+        .responsibility {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 15px;
+            border: 1px solid #292929;
+            background: #0d0d0d;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .responsibility input {
+            width: auto;
+            margin: 3px 0 0;
+        }
+
+        .responsibility label {
+            margin: 0;
+            line-height: 1.9;
+            color: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 7px;
+            background: #eee;
+            color: #111;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #fff;
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .message {
+            min-height: 30px;
+            margin-top: 18px;
+            line-height: 1.9;
+            color: #aaa;
+        }
+
+        .login-box {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .login-box p {
+            color: #888;
+            line-height: 2;
+            margin: 15px 0 25px;
+        }
+
+        .login-box a {
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid #444;
+            padding: 12px 25px;
+            border-radius: 7px;
+            display: inline-block;
+        }
+
+        @media (max-width: 600px) {
+            .nav {
+                flex-direction: column;
+            }
+
+            .box {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="nav">
+
+        <div class="logo">
+            پارادوکس
+        </div>
+
+        <div>
+            <a href="main.html">مطالب</a>
+            <a href="profile.html">پروفایل</a>
+        </div>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    <section id="pageContent" class="box">
+
+        <h1>
+            بخش نویسندگان
+        </h1>
+
+        <p class="intro">
+            این بخش تنها برای مالک و نویسندگان پارادوکس است.
+        </p>
+
+        <form id="postForm">
+
+            <label for="title">
+                عنوان نوشته
+            </label>
+
+            <input
+                id="title"
+                type="text"
+                maxlength="200"
+                required
+            >
+
+
+            <label for="content">
+                متن نوشته
+            </label>
+
+            <textarea
+                id="content"
+                required
+            ></textarea>
+
+
+            <label>
+                فایل‌های همراه نوشته
+            </label>
+
+            <div class="file-box">
+
+                <input
+                    id="mediaFiles"
+                    type="file"
+                    multiple
+                    accept="image/*,video/*,.pdf,.zip,.rar,.txt,.doc,.docx"
+                >
+
+                <div class="file-help">
+                    می‌توانی یک یا چند تصویر، ویدئو یا فایل را همراه نوشته منتشر کنی.
+                </div>
+
+            </div>
+
+
+            <div class="responsibility">
+
+                <input
+                    id="responsibility"
+                    type="checkbox"
+                    required
+                >
+
+                <label for="responsibility">
+                    می‌پذیرم که تمام مسئولیت مطالب و فایل‌هایی که با حساب من منتشر
+                    می‌شوند بر عهدهٔ خودم است.
+                </label>
+
+            </div>
+
+
+            <button id="publishButton" type="submit">
+                انتشار نوشته
+            </button>
+
+        </form>
+
+        <div id="message" class="message"></div>
+
+    </section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+
+    let currentUser = null;
+    let currentProfile = null;
+
+
+    async function checkWriterAccess() {
+
+        const {
+            data: {
+                user
+            }
+        } = await supabaseClient.auth.getUser();
+
+
+        if (!user) {
+
+            showLoginMessage(
+                "برای ورود به بخش نویسندگان ابتدا باید وارد حساب شوید."
+            );
+
+            return false;
+        }
+
+
+        currentUser = user;
+
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+
+        if (error || !data) {
+
+            showLoginMessage(
+                "اطلاعات حساب شما پیدا نشد."
+            );
+
+            return false;
+        }
+
+
+        currentProfile = data;
+
+
+        if (
+            data.role !== "owner" &&
+            data.role !== "writer"
+        ) {
+
+            showLoginMessage(
+                "این بخش فقط برای نویسندگان و مالک پارادوکس است."
+            );
+
+            return false;
+        }
+
+
+        document.getElementById("pageContent").innerHTML = `
+            <h1>انتشار نوشته</h1>
+
+            <p class="intro">
+                نویسنده:
+                ${escapeHtml(data.pen_name || data.display_name || "بدون لقب")}
+            </p>
+
+            <form id="postForm">
+
+                <label for="title">
+                    عنوان نوشته
+                </label>
+
+                <input
+                    id="title"
+                    type="text"
+                    maxlength="200"
+                    required
+                >
+
+                <label for="content">
+                    متن نوشته
+                </label>
+
+                <textarea
+                    id="content"
+                    required
+                ></textarea>
+
+                <label>
+                    فایل‌های همراه نوشته
+                </label>
+
+                <div class="file-box">
+
+                    <input
+                        id="mediaFiles"
+                        type="file"
+                        multiple
+                        accept="image/*,video/*,.pdf,.zip,.rar,.txt,.doc,.docx"
+                    >
+
+                    <div class="file-help">
+                        تصویر، ویدئو یا فایل مورد نیازت را انتخاب کن.
+                    </div>
+
+                </div>
+
+                <div class="responsibility">
+
+                    <input
+                        id="responsibility"
+                        type="checkbox"
+                        required
+                    >
+
+                    <label for="responsibility">
+                        می‌پذیرم که تمام مسئولیت مطالب و فایل‌هایی که با حساب من
+                        منتشر می‌شوند بر عهدهٔ خودم است.
+                    </label>
+
+                </div>
+
+                <button id="publishButton" type="submit">
+                    انتشار نوشته
+                </button>
+
+            </form>
+
+            <div id="message" class="message"></div>
+        `;
+
+
+        document
+            .getElementById("postForm")
+            .addEventListener(
+                "submit",
+                publishPost
+            );
+
+
+        return true;
+    }
+
+
+    function showLoginMessage(text) {
+
+        document.getElementById("pageContent").innerHTML = `
+            <div class="login-box">
+
+                <h1>دسترسی محدود</h1>
+
+                <p>
+                    ${escapeHtml(text)}
+                </p>
+
+                <a href="login.html">
+                    رفتن به صفحه ورود
+                </a>
+
+            </div>
+        `;
+    }
+
+
+    async function publishPost(event) {
+
+        event.preventDefault();
+
+
+        const title =
+            document
+                .getElementById("title")
+                .value
+                .trim();
+
+
+        const content =
+            document
+                .getElementById("content")
+                .value
+                .trim();
+
+
+        const responsibility =
+            document.getElementById(
+                "responsibility"
+            ).checked;
+
+
+        const files =
+            Array.from(
+                document
+                    .getElementById("mediaFiles")
+                    .files
+            );
+
+
+        const message =
+            document.getElementById("message");
+
+
+        const button =
+            document.getElementById("publishButton");
+
+
+        if (!responsibility) {
+
+            message.textContent =
+                "ابتدا باید پذیرش مسئولیت را تأیید کنی.";
+
+            return;
+        }
+
+
+        if (!title || !content) {
+
+            message.textContent =
+                "عنوان و متن نوشته را وارد کن.";
+
+            return;
+        }
+
+
+        button.disabled = true;
+
+        message.textContent =
+            "در حال انتشار نوشته...";
+
+
+        /*
+         * اول پذیرش مسئولیت را ثبت می‌کنیم.
+         */
+
+        const {
+            error: responsibilityError
+        } = await supabaseClient
+            .from("profiles")
+            .update({
+                responsibility_accepted_at: new Date().toISOString()
+            })
+            .eq("id", currentUser.id);
+
+
+        if (responsibilityError) {
+
+            button.disabled = false;
+
+            message.textContent =
+                "خطا در ثبت پذیرش مسئولیت: " +
+                responsibilityError.message;
+
+            return;
+        }
+
+
+        /*
+         * ساخت نوشته
+         */
+
+        const {
+            data: post,
+            error: postError
+        } = await supabaseClient
+            .from("posts")
+            .insert({
+
+                author_id: currentUser.id,
+
+                title: title,
+
+                content: content,
+
+                responsibility_acknowledged: true,
+
+                published: true
+
+            })
+            .select()
+            .single();
+
+
+        if (postError) {
+
+            button.disabled = false;
+
+            message.textContent =
+                "خطا در انتشار نوشته: " +
+                postError.message;
+
+            return;
+        }
+
+
+        /*
+         * بارگذاری فایل‌ها
+         */
+
+        for (const file of files) {
+
+            const safeName =
+                file.name
+                    .replace(
+                        /[^a-zA-Z0-9._-]/g,
+                        "_"
+                    );
+
+
+            const filePath =
+                currentUser.id +
+                "/" +
+                post.id +
+                "/" +
+                Date.now() +
+                "_" +
+                safeName;
+
+
+            const {
+                error: uploadError
+            } = await supabaseClient
+                .storage
+                .from("post-media")
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        contentType: file.type,
+                        upsert: false
+                    }
+                );
+
+
+            if (uploadError) {
+
+                console.error(
+                    "Upload error:",
+                    uploadError
+                );
+
+                continue;
+            }
+
+
+            const {
+                data: publicData
+            } =
+                supabaseClient
+                    .storage
+                    .from("post-media")
+                    .getPublicUrl(
+                        filePath
+                    );
+
+
+            await supabaseClient
+                .from("post_media")
+                .insert({
+
+                    post_id: post.id,
+
+                    uploader_id: currentUser.id,
+
+                    file_name: file.name,
+
+                    file_path: publicData.publicUrl,
+
+                    mime_type: file.type,
+
+                    file_size: file.size
+
+                });
+        }
+
+
+        button.disabled = false;
+
+
+        message.textContent =
+            "نوشته با موفقیت منتشر شد.";
+
+
+        document
+            .getElementById("postForm")
+            .reset();
+
+    }
+
+
+    function escapeHtml(text) {
+
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    checkWriterAccess();
+
+</script>
+
+</body>
+</html>
