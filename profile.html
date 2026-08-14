@@ -183,6 +183,16 @@
 
         <label for="displayName">
             نام نمایشی
+       <label for="penName">
+    لقب نویسندگی
+</label>
+
+<input
+    type="text"
+    id="penName"
+    maxlength="50"
+    placeholder="مثلاً سایه، نگهبان، نویسنده خاموش..."
+>
         </label>
 
         <input
@@ -265,7 +275,9 @@
 
         document.getElementById("displayName").value =
             data.display_name || "";
-
+document.getElementById("penName").value =
+    data.pen_name || "";
+        
         const roleNames = {
             owner: "مالک",
             writer: "نویسنده",
@@ -289,10 +301,15 @@
         const message =
             document.getElementById("message");
 
-        const displayName =
-            document.getElementById("displayName")
-                .value
-                .trim();
+       const displayName =
+    document.getElementById("displayName")
+        .value
+        .trim();
+
+const penName =
+    document.getElementById("penName")
+        .value
+        .trim();
 
         const avatarFile =
             document.getElementById("avatarFile").files[0];
@@ -363,10 +380,11 @@
             error
         } = await supabaseClient
             .from("profiles")
-            .update({
-                display_name: displayName,
-                avatar_url: avatarUrl
-            })
+           .update({
+    display_name: displayName,
+    pen_name: penName,
+    avatar_url: avatarUrl
+})
             .eq("id", currentUser.id);
 
 
@@ -385,7 +403,8 @@
 
         currentProfile.avatar_url =
             avatarUrl;
-
+currentProfile.pen_name =
+    penName;
         message.textContent =
             "پروفایل با موفقیت ذخیره شد.";
     }
@@ -414,6 +433,7 @@
 
 
     loadProfile();
+    
 </script>
 
 </body>
