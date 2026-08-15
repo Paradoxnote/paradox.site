@@ -309,8 +309,8 @@
 
 <script>
 
-    const SUPABASE_URL = "YOUR_SUPABASE_URL";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = "https://ordoglrqdizeisyoupsf.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
 
     const supabaseClient =
         window.supabase.createClient(
@@ -582,26 +582,34 @@
          * ساخت نوشته
          */
 
-        const {
-            data: post,
-            error: postError
-        } = await supabaseClient
-            .from("posts")
-            .insert({
+      const {
+    data: post,
+    error: postError
+} = await supabaseClient
+    .from("posts")
+    .insert({
+        author_id: currentUser.id,
+        title: title,
+        content: content,
+        responsibility_acknowledged: true,
+        published: true
+    })
+    .select()
+    .single();
 
-                author_id: currentUser.id,
+if (postError) {
 
-                title: title,
+    console.error("POST ERROR:", postError);
 
-                content: content,
+    button.disabled = false;
 
-                responsibility_acknowledged: true,
+    message.textContent =
+        "خطای انتشار: " + postError.message;
 
-                published: true
+    return;
+}
 
-            })
-            .select()
-            .single();
+console.log("POST CREATED:", post);
 
 
         if (postError) {
