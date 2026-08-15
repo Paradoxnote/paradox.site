@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ورود نویسندگان | پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #292929 0%, #0e0e0e 45%, #050505 100%);
+            color: #fff;
+            font-family: Tahoma, Arial, sans-serif;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+        }
+
+        .box {
+            width: min(430px, 100%);
+            background: #111;
+            border: 1px solid #2b2b2b;
+            border-radius: 15px;
+            padding: 35px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+            line-height: 2;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: #bbb;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 13px;
+
+            background: #090909;
+            color: #fff;
+
+            border: 1px solid #333;
+            border-radius: 7px;
+
+            margin-bottom: 18px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #777;
+        }
+
+        .responsibility {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+
+            border: 1px solid #292929;
+            border-radius: 8px;
+
+            padding: 15px;
+            margin-bottom: 20px;
+
+            background: #0c0c0c;
+        }
+
+        .responsibility input {
+            margin-top: 4px;
+        }
+
+        .responsibility label {
+            margin: 0;
+            color: #999;
+            line-height: 1.9;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+
+            border: none;
+            border-radius: 7px;
+
+            background: #eee;
+            color: #111;
+
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #fff;
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            min-height: 30px;
+            margin-top: 18px;
+            text-align: center;
+            color: #888;
+            line-height: 1.9;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+
+            color: #777;
+            text-decoration: none;
+
+            margin-top: 22px;
+        }
+
+        .back:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <div class="logo">
+        پارادوکس
+    </div>
+
+    <div class="subtitle">
+        ورود ویژه نویسندگان و مالک
+    </div>
+
+
+    <form id="writerLoginForm">
+
+        <label for="username">
+            نام کاربری
+        </label>
+
+        <input
+            type="text"
+            id="username"
+            autocomplete="username"
+            required
+        >
+
+
+        <label for="password">
+            رمز عبور
+        </label>
+
+        <input
+            type="password"
+            id="password"
+            autocomplete="current-password"
+            required
+        >
+
+
+        <div class="responsibility">
+
+            <input
+                type="checkbox"
+                id="responsibility"
+                required
+            >
+
+            <label for="responsibility">
+                می‌پذیرم که تمام مسئولیت نوشته‌ها،
+                فایل‌ها و مطالبی که با این حساب منتشر
+                می‌شوند بر عهدهٔ خودم است.
+            </label>
+
+        </div>
+
+
+        <button
+            id="loginButton"
+            type="submit"
+        >
+            ورود
+        </button>
+
+    </form>
+
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <a
+        class="back"
+        href="main.html"
+    >
+        بازگشت به پارادوکس
+    </a>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+    const SUPABASE_URL =
+        "YOUR_SUPABASE_URL";
+
+    const SUPABASE_ANON_KEY =
+        "YOUR_SUPABASE_ANON_KEY";
+
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+
+    function makeInternalEmail(username) {
+
+        return (
+            username
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]/g, "")
+            +
+            "@paradox-writers.local"
+        );
+    }
+
+
+    document
+        .getElementById("writerLoginForm")
+        .addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                const username =
+                    document
+                        .getElementById("username")
+                        .value
+                        .trim();
+
+
+                const password =
+                    document
+                        .getElementById("password")
+                        .value;
+
+
+                const accepted =
+                    document
+                        .getElementById("responsibility")
+                        .checked;
+
+
+                const message =
+                    document
+                        .getElementById("message");
+
+
+                const button =
+                    document
+                        .getElementById("loginButton");
+
+
+                if (!accepted) {
+
+                    message.textContent =
+                        "ابتدا باید پذیرش مسئولیت را تأیید کنید.";
+
+                    return;
+                }
+
+
+                button.disabled = true;
+
+                message.textContent =
+                    "در حال ورود...";
+
+
+                /*
+                 * نام کاربری را به ایمیل داخلی
+                 * حساب Supabase تبدیل می‌کنیم.
+                 */
+
+                const email =
+                    makeInternalEmail(username);
+
+
+                const {
+                    error: loginError
+                } =
+                    await supabaseClient.auth
+                        .signInWithPassword({
+
+                            email: email,
+
+                            password: password
+
+                        });
+
+
+                if (loginError) {
+
+                    button.disabled = false;
+
+                    message.textContent =
+                        "نام کاربری یا رمز عبور نادرست است.";
+
+                    return;
+                }
+
+
+                /*
+                 * بررسی نقش واقعی حساب
+                 */
+
+                const {
+                    data: {
+                        user
+                    }
+                } =
+                    await supabaseClient.auth
+                        .getUser();
+
+
+                if (!user) {
+
+                    await supabaseClient.auth.signOut();
+
+                    button.disabled = false;
+
+                    message.textContent =
+                        "ورود انجام نشد.";
+
+                    return;
+                }
+
+
+                const {
+                    data: profile,
+                    error: profileError
+                } =
+                    await supabaseClient
+                        .from("profiles")
+                        .select(`
+                            id,
+                            username,
+                            role,
+                            responsibility_accepted_at
+                        `)
+                        .eq("id", user.id)
+                        .single();
+
+
+                if (
+                    profileError ||
+                    !profile
+                ) {
+
+                    await supabaseClient.auth.signOut();
+
+                    button.disabled = false;
+
+                    message.textContent =
+                        "پروفایل نویسنده پیدا نشد.";
+
+                    return;
+                }
+
+
+                if (
+                    profile.role !== "writer" &&
+                    profile.role !== "owner"
+                ) {
+
+                    await supabaseClient.auth.signOut();
+
+                    button.disabled = false;
+
+                    message.textContent =
+                        "این حساب اجازه ورود به بخش نویسندگان را ندارد.";
+
+                    return;
+                }
+
+
+                /*
+                 * ثبت پذیرش مسئولیت
+                 */
+
+                const {
+                    error: responsibilityError
+                } =
+                    await supabaseClient
+                        .from("profiles")
+                        .update({
+                            responsibility_accepted_at:
+                                new Date().toISOString()
+                        })
+                        .eq("id", user.id);
+
+
+                if (responsibilityError) {
+
+                    await supabaseClient.auth.signOut();
+
+                    button.disabled = false;
+
+                    message.textContent =
+                        "ثبت پذیرش مسئولیت انجام نشد.";
+
+                    return;
+                }
+
+
+                message.textContent =
+                    "ورود موفق بود. در حال انتقال...";
+
+
+                window.location.href =
+                    "writers.html";
+
+            }
+        );
+
+</script>
+
+</body>
+</html>
