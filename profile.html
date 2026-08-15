@@ -104,7 +104,16 @@
             color: white;
             margin-bottom: 18px;
         }
+#dashboardButton {
+    margin-top: 12px;
+    background: #181818;
+    color: #ddd;
+    border: 1px solid #333;
+}
 
+#dashboardButton:hover {
+    background: #252525;
+}
         button {
             width: 100%;
             padding: 13px;
@@ -215,7 +224,9 @@
         <button id="saveButton">
             ذخیره تغییرات
         </button>
-
+<button id="dashboardButton" style="display:none;">
+    ورود به بخش نویسندگان
+</button>
         <button id="logoutButton" class="logout">
             خروج از حساب
         </button>
@@ -286,7 +297,24 @@ document.getElementById("penName").value =
 
         document.getElementById("roleText").textContent =
             "نقش: " + (roleNames[data.role] || "کاربر");
+const dashboardButton =
+    document.getElementById("dashboardButton");
 
+
+if (
+    data.role === "writer" ||
+    data.role === "owner"
+) {
+
+    dashboardButton.style.display =
+        "block";
+
+    dashboardButton.textContent =
+        data.role === "owner"
+            ? "ورود به داشبورد مالک"
+            : "ورود به داشبورد نویسنده";
+
+}
         if (data.avatar_url) {
             document.getElementById("avatarBox").innerHTML =
                 `<img src="${data.avatar_url}" alt="تصویر پروفایل">`;
@@ -430,7 +458,17 @@ currentProfile.pen_name =
                     "login.html";
             }
         );
+document
+    .getElementById("dashboardButton")
+    .addEventListener(
+        "click",
+        function() {
 
+            window.location.href =
+                "writer-dashboard.html";
+
+        }
+    );
 
     loadProfile();
     
