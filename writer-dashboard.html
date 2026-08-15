@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>داشبورد | پارادوکس</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #090909;
+            color: #eee;
+        }
+
+        header {
+            border-bottom: 1px solid #252525;
+            background: #101010;
+        }
+
+        .nav {
+            width: min(1100px, calc(100% - 30px));
+            min-height: 70px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .nav a {
+            color: #aaa;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        .container {
+            width: min(1000px, calc(100% - 30px));
+            margin: 45px auto;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: #777;
+            line-height: 2;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: #111;
+            border: 1px solid #292929;
+            border-radius: 14px;
+            padding: 28px;
+        }
+
+        .card h2 {
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #888;
+            line-height: 2;
+            margin-bottom: 22px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 7px;
+            background: #eee;
+            color: #111;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background: white;
+        }
+
+        .secondary {
+            background: #181818;
+            color: #ddd;
+            border: 1px solid #333;
+        }
+
+        .message {
+            color: #888;
+            line-height: 2;
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                flex-direction: column;
+                padding: 15px 0;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="nav">
+
+        <div class="logo">
+            پارادوکس
+        </div>
+
+        <div>
+            <a href="main.html">مطالب</a>
+            <a href="profile.html">پروفایل</a>
+        </div>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    <section class="welcome">
+
+        <h1 id="welcomeTitle">
+            داشبورد
+        </h1>
+
+        <p id="welcomeText">
+            در حال بررسی حساب...
+        </p>
+
+    </section>
+
+
+    <section class="cards">
+
+        <div class="card">
+
+            <h2>
+                نوشتن مطلب
+            </h2>
+
+            <p>
+                نوشتهٔ تازه ایجاد کن و در صورت نیاز
+                تصویر، ویدئو یا فایل همراه آن منتشر کن.
+            </p>
+
+            <a
+                href="writers.html"
+                class="button"
+            >
+                رفتن به بخش نوشتن
+            </a>
+
+        </div>
+
+
+        <div
+            class="card"
+            id="adminCard"
+            style="display:none;"
+        >
+
+            <h2>
+                مدیریت پارادوکس
+            </h2>
+
+            <p>
+                نوشته‌ها، دیدگاه‌ها، کاربران و
+                نویسندگان را مدیریت کن.
+            </p>
+
+            <a
+                href="admin.html"
+                class="button secondary"
+            >
+                ورود به مدیریت
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+    "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+async function checkAccess() {
+
+    const {
+        data: {
+            user
+        }
+    } =
+        await supabaseClient.auth.getUser();
+
+
+    /*
+     * کاربر وارد نشده
+     */
+
+    if (!user) {
+
+        window.location.href =
+            "writers-login.html";
+
+        return;
+    }
+
+
+    /*
+     * گرفتن نقش
+     */
+
+    const {
+        data: profile,
+        error
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "display_name, pen_name, role"
+            )
+            .eq("id", user.id)
+            .maybeSingle();
+
+
+    if (
+        error ||
+        !profile
+    ) {
+
+        document.getElementById(
+            "welcomeText"
+        ).textContent =
+            "اطلاعات حساب پیدا نشد.";
+
+        return;
+    }
+
+
+    /*
+     * فقط نویسنده و مالک
+     */
+
+    if (
+        profile.role !== "writer" &&
+        profile.role !== "owner"
+    ) {
+
+        window.location.href =
+            "main.html";
+
+        return;
+    }
+
+
+    const name =
+        profile.pen_name ||
+        profile.display_name ||
+        "عضو پارادوکس";
+
+
+    document.getElementById(
+        "welcomeTitle"
+    ).textContent =
+        "خوش آمدی، " + name;
+
+
+    /*
+     * نویسنده
+     */
+
+    if (profile.role === "writer") {
+
+        document.getElementById(
+            "welcomeText"
+        ).textContent =
+            "شما به بخش نویسندگان دسترسی دارید.";
+    }
+
+
+    /*
+     * مالک
+     */
+
+    if (profile.role === "owner") {
+
+        document.getElementById(
+            "welcomeText"
+        ).textContent =
+            "شما با حساب مالک وارد شده‌اید.";
+
+        document.getElementById(
+            "adminCard"
+        ).style.display =
+            "block";
+    }
+}
+
+
+checkAccess();
+
+</script>
+
+</body>
+</html>
