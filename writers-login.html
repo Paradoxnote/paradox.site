@@ -133,16 +133,16 @@
 
     <form id="loginForm">
 
-        <label for="username">
-            نام کاربری
-        </label>
+       <label for="email">
+    ایمیل
+</label>
 
-        <input
-            id="username"
-            type="text"
-            autocomplete="username"
-            required
-        >
+<input
+    id="email"
+    type="email"
+    autocomplete="username"
+    required
+>
 
         <label for="password">
             رمز عبور
@@ -189,10 +189,10 @@
 <script>
 
 const SUPABASE_URL =
-    "https://cnmkwfbgovwvyuzluera.supabase.co";
+    "YOUR_SUPABASE_URL";
 
 const SUPABASE_ANON_KEY =
-    "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
+    "YOUR_SUPABASE_ANON_KEY";
 
 const supabaseClient =
     window.supabase.createClient(
@@ -207,9 +207,9 @@ document
 
         event.preventDefault();
 
-        const username =
+        const email =
             document
-                .getElementById("username")
+                .getElementById("email")
                 .value
                 .trim();
 
@@ -237,129 +237,143 @@ document
         }
 
 
-        if (!username || !password) {
-            message.textContent =
-                "نام کاربری و رمز عبور را وارد کنید.";
-            return;
-        }
-
-
         button.disabled = true;
 
         message.textContent =
             "در حال ورود...";
 
 
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient.functions.invoke(
-                "writer-login",
-                {
-                    body: {
-                        username: username,
-                        password: password
-                    }
-                }
-            );
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (!data || !data.session) {
-
-                message.textContent =
-                    data?.error ||
-                    "ورود انجام نشد.";
-
-                button.disabled = false;
-
-                return;
-            }
-
-
-            /*
-             * ذخیره نشست ورود در مرورگر
-             */
-
-            const {
-                error: sessionError
-            } =
-                await supabaseClient.auth.setSession({
-                    access_token:
-                        data.session.access_token,
-
-                    refresh_token:
-                        data.session.refresh_token
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth
+                .signInWithPassword({
+                    email: email,
+                    password: password
                 });
 
 
-            if (sessionError) {
-
-                message.textContent =
-                    "نشست ورود ایجاد نشد.";
-
-                button.disabled = false;
-
-                return;
-            }
-
-
-            /*
-             * ثبت پذیرفتن مسئولیت
-             */
-
-            const {
-                data: currentUserData
-            } =
-                await supabaseClient.auth.getUser();
-
-
-            if (currentUserData.user) {
-
-                await supabaseClient
-                    .from("profiles")
-                    .update({
-                        responsibility_accepted_at:
-                            new Date().toISOString()
-                    })
-                    .eq(
-                        "id",
-                        currentUserData.user.id
-                    );
-            }
-
-
-            message.textContent =
-                "ورود انجام شد. در حال انتقال...";
-
-
-            setTimeout(function() {
-
-                window.location.href =
-                    "writers.html";
-
-            }, 700);
-
-        } catch (error) {
+        if (error) {
 
             console.error(error);
 
             message.textContent =
-                "نام کاربری یا رمز عبور نادرست است.";
+                "ایمیل یا رمز عبور نادرست است.";
 
             button.disabled = false;
+
+            return;
         }
+
+
+        if (!data.user) {
+
+            message.textContent =
+                "ورود انجام نشد.";
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        /*
+         * بررسی نقش واقعی حساب
+         */
+
+        const {
+            data: profile,
+            error: profileError
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select(`
+                    id,
+                    username,
+                    display_name,
+                    pen_name,
+                    role
+                `)
+                .eq("id", data.user.id)
+                .single();
+
+
+        if (profileError || !profile) {
+
+            await supabaseClient.auth.signOut();
+
+            message.textContent =
+                "پروفایل این حساب پیدا نشد.";
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        if (
+            profile.role !== "writer" &&
+            profile.role !== "owner"
+        ) {
+
+            await supabaseClient.auth.signOut();
+
+            message.textContent =
+                "این حساب اجازه ورود به بخش نویسندگان را ندارد.";
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        /*
+         * ثبت پذیرش مسئولیت
+         */
+
+        const {
+            error: responsibilityError
+        } =
+            await supabaseClient
+                .from("profiles")
+                .update({
+                    responsibility_accepted_at:
+                        new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    data.user.id
+                );
+
+
+        if (responsibilityError) {
+
+            await supabaseClient.auth.signOut();
+
+            message.textContent =
+                "ثبت پذیرش مسئولیت انجام نشد.";
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        message.textContent =
+            "ورود موفق بود. در حال انتقال...";
+
+
+        setTimeout(function() {
+
+            window.location.href =
+                "writers.html";
+
+        }, 700);
 
     });
 
 </script>
-
 
 </body>
 </html>
