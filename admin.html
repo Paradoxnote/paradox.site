@@ -208,6 +208,19 @@
         </div>
 
     </section>
+    <section id="commentsSection" class="section" hidden>
+
+    <h2>
+        مدیریت دیدگاه‌ها
+    </h2>
+
+    <div id="commentsList">
+        <div class="message">
+            در حال بارگذاری...
+        </div>
+    </div>
+
+</section>
 
 </main>
 
@@ -216,8 +229,8 @@
 
 <script>
 
-    const SUPABASE_URL = "YOUR_SUPABASE_URL";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = "https://cnmkwfbgovwvyuzluera.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
 
     const supabaseClient =
         window.supabase.createClient(
@@ -323,10 +336,13 @@
         document.getElementById(
             "usersSection"
         ).hidden = false;
+        document.getElementById(
+    "commentsSection"
+).hidden = false;
 
-
-        await loadPosts();
-        await loadUsers();
+      await loadPosts();
+await loadUsers();
+await loadComments();
 
         return true;
     }
@@ -446,8 +462,160 @@
             list.appendChild(div);
         }
     }
+async function loadComments() {
+
+    const list =
+        document.getElementById("commentsList");
+
+    const {
+        data: comments,
+        error
+    } = await supabaseClient
+        .from("comments")
+        .select(`
+            id,
+            post_id,
+            content,
+            created_at,
+            posts (
+                title
+            ),
+            profiles (
+                display_name,
+                pen_name
+            )
+        `)
+        .order("created_at", {
+            ascending: false
+        });
 
 
+    if (error) {
+
+        list.innerHTML =
+            `<div class="message">
+                خطا در دریافت دیدگاه‌ها:
+                ${escapeHtml(error.message)}
+            </div>`;
+
+        return;
+    }
+
+
+    if (!comments || comments.length === 0) {
+
+        list.innerHTML =
+            `<div class="message">
+                هنوز هیچ دیدگاهی ثبت نشده است.
+            </div>`;
+
+        return;
+    }
+
+
+    list.innerHTML = "";
+
+
+    for (const comment of comments) {
+
+        const author =
+            comment.profiles?.pen_name ||
+            comment.profiles?.display_name ||
+            "کاربر";
+
+
+        const postTitle =
+            comment.posts?.title ||
+            "نوشته حذف‌شده";
+
+
+        const div =
+            document.createElement("div");
+
+
+        div.className = "post";
+
+
+        div.innerHTML = `
+
+            <div>
+
+                <div class="title">
+                    ${escapeHtml(author)}
+                </div>
+
+                <div class="meta">
+
+                    نوشته:
+                    ${escapeHtml(postTitle)}
+
+                    <br><br>
+
+                    دیدگاه:
+
+                    ${escapeHtml(comment.content)}
+
+                </div>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    class="danger"
+                    onclick="deleteComment('${comment.id}')"
+                >
+                    حذف دیدگاه
+                </button>
+
+            </div>
+
+        `;
+
+
+        list.appendChild(div);
+    }
+}
+async function deleteComment(commentId) {
+
+    const confirmed =
+        confirm(
+            "آیا از حذف این دیدگاه مطمئن هستید؟"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const {
+        error
+    } = await supabaseClient
+        .from("comments")
+        .delete()
+        .eq("id", commentId);
+
+
+    if (error) {
+
+        alert(
+            "حذف دیدگاه انجام نشد:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    alert(
+        "دیدگاه با موفقیت حذف شد."
+    );
+
+
+    await loadComments();
+}
     async function deletePost(postId) {
 
         const confirmed =
