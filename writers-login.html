@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>ورود نویسندگان | پارادوکس</title>
 
     <style>
@@ -25,22 +26,25 @@
         .box {
             width: min(430px, 100%);
             background: #111;
-            border: 1px solid #2a2a2a;
+            border: 1px solid #292929;
             border-radius: 15px;
             padding: 35px;
         }
 
-        h1 {
+        .logo {
             text-align: center;
-            margin: 0 0 10px;
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
         }
 
-        .sub {
+        .subtitle {
             text-align: center;
             color: #777;
             line-height: 2;
-            font-size: 13px;
             margin-bottom: 28px;
+            font-size: 13px;
         }
 
         label {
@@ -50,15 +54,18 @@
             margin-bottom: 7px;
         }
 
-        input[type="text"],
+        input[type="email"],
         input[type="password"] {
             width: 100%;
             padding: 13px;
-            border-radius: 7px;
-            border: 1px solid #333;
-            background: #0a0a0a;
-            color: #fff;
             margin-bottom: 18px;
+
+            background: #090909;
+            color: #fff;
+
+            border: 1px solid #333;
+            border-radius: 7px;
+
             outline: none;
         }
 
@@ -70,11 +77,13 @@
             display: flex;
             align-items: flex-start;
             gap: 10px;
+
             padding: 15px;
+            margin-bottom: 20px;
+
             background: #0c0c0c;
             border: 1px solid #292929;
             border-radius: 8px;
-            margin-bottom: 20px;
         }
 
         .accept input {
@@ -90,12 +99,19 @@
         button {
             width: 100%;
             padding: 13px;
+
             border: 0;
             border-radius: 7px;
+
             background: #eee;
             color: #111;
+
             cursor: pointer;
             font-size: 15px;
+        }
+
+        button:hover {
+            background: #fff;
         }
 
         button:disabled {
@@ -104,10 +120,11 @@
         }
 
         .message {
-            min-height: 30px;
+            min-height: 35px;
             margin-top: 18px;
-            color: #888;
+
             text-align: center;
+            color: #999;
             line-height: 1.9;
         }
 
@@ -115,8 +132,13 @@
             display: block;
             text-align: center;
             margin-top: 20px;
+
             color: #777;
             text-decoration: none;
+        }
+
+        .back:hover {
+            color: #fff;
         }
     </style>
 </head>
@@ -125,24 +147,29 @@
 
 <div class="box">
 
-    <h1>پارادوکس</h1>
-
-    <div class="sub">
-        ورود نویسندگان و مالک
+    <div class="logo">
+        پارادوکس
     </div>
 
-    <form id="loginForm">
+    <div class="subtitle">
+        ورود ویژهٔ نویسندگان و مالک
+    </div>
 
-       <label for="email">
-    ایمیل
-</label>
 
-<input
-    id="email"
-    type="email"
-    autocomplete="username"
-    required
->
+    <form id="writerLoginForm">
+
+        <label for="email">
+            ایمیل
+        </label>
+
+        <input
+            id="email"
+            type="email"
+            autocomplete="username"
+            placeholder="ایمیل حساب نویسندگی"
+            required
+        >
+
 
         <label for="password">
             رمز عبور
@@ -152,8 +179,10 @@
             id="password"
             type="password"
             autocomplete="current-password"
+            placeholder="رمز عبور"
             required
         >
+
 
         <div class="accept">
 
@@ -164,35 +193,50 @@
             >
 
             <label for="responsibility">
-                می‌پذیرم که تمام مسئولیت نوشته‌ها و
-                فایل‌هایی که با این حساب منتشر می‌شوند
-                بر عهدهٔ خودم است.
+                می‌پذیرم که تمام مسئولیت نوشته‌ها،
+                تصویرها، ویدئوها و فایل‌هایی که با
+                این حساب منتشر می‌شوند بر عهدهٔ خودم است.
             </label>
 
         </div>
 
-        <button id="loginButton" type="submit">
+
+        <button
+            id="loginButton"
+            type="submit"
+        >
             ورود
         </button>
 
     </form>
 
-    <div id="message" class="message"></div>
 
-    <a class="back" href="main.html">
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <a
+        href="main.html"
+        class="back"
+    >
         بازگشت به پارادوکس
     </a>
 
 </div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
 const SUPABASE_URL =
-    "YOUR_SUPABASE_URL";
+    "https://cnmkwfbgovwvyuzluera.supabase.co";
 
 const SUPABASE_ANON_KEY =
-    "YOUR_SUPABASE_ANON_KEY";
+    "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
+
 
 const supabaseClient =
     window.supabase.createClient(
@@ -201,11 +245,28 @@ const supabaseClient =
     );
 
 
-document
-    .getElementById("loginForm")
-    .addEventListener("submit", async function(event) {
+const form =
+    document.getElementById(
+        "writerLoginForm"
+    );
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+const button =
+    document.getElementById(
+        "loginButton"
+    );
+
+
+form.addEventListener(
+    "submit",
+    async function(event) {
 
         event.preventDefault();
+
 
         const email =
             document
@@ -218,21 +279,17 @@ document
                 .getElementById("password")
                 .value;
 
-        const accepted =
+        const responsibility =
             document
                 .getElementById("responsibility")
                 .checked;
 
-        const message =
-            document.getElementById("message");
 
-        const button =
-            document.getElementById("loginButton");
+        if (!responsibility) {
 
-
-        if (!accepted) {
             message.textContent =
-                "برای ورود باید پذیرش مسئولیت را تأیید کنید.";
+                "باید پذیرش مسئولیت را تأیید کنید.";
+
             return;
         }
 
@@ -240,23 +297,30 @@ document
         button.disabled = true;
 
         message.textContent =
-            "در حال ورود...";
+            "در حال بررسی حساب...";
 
+
+        /*
+         * مرحله ۱:
+         * ورود واقعی به Supabase Auth
+         */
 
         const {
-            data,
-            error
+            data: loginData,
+            error: loginError
         } =
-            await supabaseClient.auth
-                .signInWithPassword({
-                    email: email,
-                    password: password
-                });
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
 
 
-        if (error) {
+        if (loginError) {
 
-            console.error(error);
+            console.error(
+                "LOGIN ERROR:",
+                loginError
+            );
 
             message.textContent =
                 "ایمیل یا رمز عبور نادرست است.";
@@ -267,10 +331,10 @@ document
         }
 
 
-        if (!data.user) {
+        if (!loginData.user) {
 
             message.textContent =
-                "ورود انجام نشد.";
+                "حساب وارد نشد.";
 
             button.disabled = false;
 
@@ -278,8 +342,13 @@ document
         }
 
 
+        message.textContent =
+            "حساب پیدا شد؛ در حال بررسی نقش...";
+
+
         /*
-         * بررسی نقش واقعی حساب
+         * مرحله ۲:
+         * پیدا کردن پروفایل کاربر
          */
 
         const {
@@ -288,29 +357,51 @@ document
         } =
             await supabaseClient
                 .from("profiles")
-                .select(`
-                    id,
-                    username,
-                    display_name,
-                    pen_name,
-                    role
-                `)
-                .eq("id", data.user.id)
-                .single();
+                .select(
+                    "id, username, display_name, pen_name, role"
+                )
+                .eq(
+                    "id",
+                    loginData.user.id
+                )
+                .maybeSingle();
 
 
-        if (profileError || !profile) {
+        if (profileError) {
+
+            console.error(
+                "PROFILE ERROR:",
+                profileError
+            );
 
             await supabaseClient.auth.signOut();
 
             message.textContent =
-                "پروفایل این حساب پیدا نشد.";
+                "ورود انجام شد، ولی پروفایل قابل خواندن نیست.";
 
             button.disabled = false;
 
             return;
         }
 
+
+        if (!profile) {
+
+            await supabaseClient.auth.signOut();
+
+            message.textContent =
+                "برای این حساب پروفایل پیدا نشد.";
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        /*
+         * مرحله ۳:
+         * بررسی نقش
+         */
 
         if (
             profile.role !== "writer" &&
@@ -320,7 +411,7 @@ document
             await supabaseClient.auth.signOut();
 
             message.textContent =
-                "این حساب اجازه ورود به بخش نویسندگان را ندارد.";
+                "این حساب نویسنده یا مالک نیست.";
 
             button.disabled = false;
 
@@ -329,7 +420,8 @@ document
 
 
         /*
-         * ثبت پذیرش مسئولیت
+         * مرحله ۴:
+         * ثبت زمان پذیرش مسئولیت
          */
 
         const {
@@ -343,16 +435,21 @@ document
                 })
                 .eq(
                     "id",
-                    data.user.id
+                    loginData.user.id
                 );
 
 
         if (responsibilityError) {
 
+            console.error(
+                "RESPONSIBILITY ERROR:",
+                responsibilityError
+            );
+
             await supabaseClient.auth.signOut();
 
             message.textContent =
-                "ثبت پذیرش مسئولیت انجام نشد.";
+                "ورود انجام شد، ولی ثبت پذیرش مسئولیت ممکن نشد.";
 
             button.disabled = false;
 
@@ -360,18 +457,27 @@ document
         }
 
 
+        /*
+         * مرحله ۵:
+         * ورود کامل شد
+         */
+
         message.textContent =
             "ورود موفق بود. در حال انتقال...";
 
 
-        setTimeout(function() {
+        setTimeout(
+            function() {
 
-            window.location.href =
-                "writers.html";
+                window.location.href =
+                    "writers.html";
 
-        }, 700);
+            },
+            500
+        );
 
-    });
+    }
+);
 
 </script>
 
