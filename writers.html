@@ -336,32 +336,42 @@ let currentProfile = null;
 /* -----------------------------
    بررسی ورود
 ----------------------------- */
-
 async function checkWriterAccess() {
 
+    console.log("WRITERS PAGE START");
+
     const {
-        data: {
-            user
-        },
-        error: userError
+        data,
+        error
     } = await supabaseClient.auth.getUser();
 
+    console.log("AUTH DATA:", data);
+    console.log("AUTH ERROR:", error);
 
-    console.log("CURRENT USER:", user);
-    console.log("USER ERROR:", userError);
+    if (error || !data.user) {
 
+        document.getElementById("pageContent").innerHTML = `
+            <div class="login-box">
 
-    if (userError || !user) {
+                <h1>دسترسی محدود</h1>
 
-        showLoginMessage(
-            "جلسهٔ ورود پیدا نشد. دوباره وارد شوید."
-        );
+                <p>
+                    نشست ورود در این صفحه پیدا نشد.
+                </p>
 
-        return false;
+                <a href="writers-login.html">
+                    ورود دوباره
+                </a>
+
+            </div>
+        `;
+
+        return;
     }
 
+    currentUser = data.user;
 
-    currentUser = user;
+    console.log("USER ID:", currentUser.id);
 
 
     const {
@@ -369,14 +379,8 @@ async function checkWriterAccess() {
         error: profileError
     } = await supabaseClient
         .from("profiles")
-        .select(`
-            id,
-            username,
-            display_name,
-            pen_name,
-            role
-        `)
-        .eq("id", user.id)
+        .select("*")
+        .eq("id", currentUser.id)
         .maybeSingle();
 
 
@@ -384,28 +388,24 @@ async function checkWriterAccess() {
     console.log("PROFILE ERROR:", profileError);
 
 
-    if (profileError) {
+    if (profileError || !profile) {
 
-        showLoginMessage(
-            "خطا در خواندن پروفایل: " +
-            profileError.message
-        );
+        document.getElementById("pageContent").innerHTML = `
+            <div class="login-box">
 
-        return false;
+                <h1>خطا در پروفایل</h1>
+
+                <p>
+                    ${profileError
+                        ? profileError.message
+                        : "پروفایل پیدا نشد."}
+                </p>
+
+            </div>
+        `;
+
+        return;
     }
-
-
-    if (!profile) {
-
-        showLoginMessage(
-            "برای این حساب پروفایل پیدا نشد."
-        );
-
-        return false;
-    }
-
-
-    currentProfile = profile;
 
 
     if (
@@ -413,17 +413,23 @@ async function checkWriterAccess() {
         profile.role !== "owner"
     ) {
 
-        showLoginMessage(
-            "این حساب اجازهٔ ورود به بخش نویسندگان را ندارد."
-        );
+        document.getElementById("pageContent").innerHTML = `
+            <div class="login-box">
 
-        return false;
+                <h1>دسترسی محدود</h1>
+
+                <p>
+                    این حساب نویسنده یا مالک نیست.
+                </p>
+
+            </div>
+        `;
+
+        return;
     }
 
 
     renderWriterPage(profile);
-
-    return true;
 }
 
 /* -----------------------------
