@@ -184,34 +184,21 @@
     </a>
 
 </div>
-
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
 const SUPABASE_URL =
-    "YOUR_SUPABASE_URL";
+    "https://cnmkwfbgovwvyuzluera.supabase.co";
 
 const SUPABASE_ANON_KEY =
-    "YOUR_SUPABASE_ANON_KEY";
-
+    "sb_publishable_gbZH8FlhWbWWKDPxCQlBFg_J1xA_PmO";
 
 const supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_ANON_KEY
     );
-
-
-function escapeHtml(text) {
-    return String(text ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
 
 
 document
@@ -244,10 +231,15 @@ document
 
 
         if (!accepted) {
-
             message.textContent =
                 "برای ورود باید پذیرش مسئولیت را تأیید کنید.";
+            return;
+        }
 
+
+        if (!username || !password) {
+            message.textContent =
+                "نام کاربری و رمز عبور را وارد کنید.";
             return;
         }
 
@@ -258,63 +250,116 @@ document
             "در حال ورود...";
 
 
-        /*
-         * توجه:
-         * این بخش فقط برای پیدا کردن ایمیل حساب است.
-         */
+        try {
 
-        const {
-            data: profile,
-            error: profileError
-        } =
-            await supabaseClient
-                .from("profiles")
-                .select("id, username, role")
-                .eq("username", username)
-                .maybeSingle();
+            const {
+                data,
+                error
+            } = await supabaseClient.functions.invoke(
+                "writer-login",
+                {
+                    body: {
+                        username: username,
+                        password: password
+                    }
+                }
+            );
 
 
-        if (profileError || !profile) {
+            if (error) {
+                throw error;
+            }
 
-            button.disabled = false;
+
+            if (!data || !data.session) {
+
+                message.textContent =
+                    data?.error ||
+                    "ورود انجام نشد.";
+
+                button.disabled = false;
+
+                return;
+            }
+
+
+            /*
+             * ذخیره نشست ورود در مرورگر
+             */
+
+            const {
+                error: sessionError
+            } =
+                await supabaseClient.auth.setSession({
+                    access_token:
+                        data.session.access_token,
+
+                    refresh_token:
+                        data.session.refresh_token
+                });
+
+
+            if (sessionError) {
+
+                message.textContent =
+                    "نشست ورود ایجاد نشد.";
+
+                button.disabled = false;
+
+                return;
+            }
+
+
+            /*
+             * ثبت پذیرفتن مسئولیت
+             */
+
+            const {
+                data: currentUserData
+            } =
+                await supabaseClient.auth.getUser();
+
+
+            if (currentUserData.user) {
+
+                await supabaseClient
+                    .from("profiles")
+                    .update({
+                        responsibility_accepted_at:
+                            new Date().toISOString()
+                    })
+                    .eq(
+                        "id",
+                        currentUserData.user.id
+                    );
+            }
+
+
+            message.textContent =
+                "ورود انجام شد. در حال انتقال...";
+
+
+            setTimeout(function() {
+
+                window.location.href =
+                    "writers.html";
+
+            }, 700);
+
+        } catch (error) {
+
+            console.error(error);
 
             message.textContent =
                 "نام کاربری یا رمز عبور نادرست است.";
 
-            return;
-        }
-
-
-        if (
-            profile.role !== "writer" &&
-            profile.role !== "owner"
-        ) {
-
             button.disabled = false;
-
-            message.textContent =
-                "این حساب اجازهٔ ورود به بخش نویسندگان را ندارد.";
-
-            return;
         }
-
-
-        /*
-         * از مرورگر نباید auth.users.email را
-         * مستقیماً بخوانیم.
-         *
-         * بنابراین در مرحلهٔ بعد یک راه امن‌تر
-         * برای نگاشت username به email می‌سازیم.
-         */
-
-        button.disabled = false;
-
-        message.textContent =
-            "حساب پیدا شد؛ مرحلهٔ اتصال امن ورود در گام بعد تکمیل می‌شود.";
 
     });
 
 </script>
+
 
 </body>
 </html>
