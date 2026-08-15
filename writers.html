@@ -232,7 +232,7 @@
             این بخش تنها برای مالک و نویسندگان پارادوکس است.
         </p>
 
-        <form id="postForm">
+        <form id="postForm" onsubmit="publishPost(event); return false;">
 
             <label for="title">
                 عنوان نوشته
@@ -488,7 +488,8 @@
 
 
     async function publishPost(event) {
-
+event.preventDefault();
+event.stopPropagation();
         event.preventDefault();
 
 
@@ -564,7 +565,21 @@
                 responsibility_accepted_at: new Date().toISOString()
             })
             .eq("id", currentUser.id);
+if (responsibilityError) {
 
+    console.error(
+        "RESPONSIBILITY ERROR:",
+        responsibilityError
+    );
+
+    button.disabled = false;
+
+    message.textContent =
+        "خطا در ثبت مسئولیت: " +
+        responsibilityError.message;
+
+    return;
+}
 
         if (responsibilityError) {
 
@@ -582,7 +597,7 @@
          * ساخت نوشته
          */
 
-      const {
+     const {
     data: post,
     error: postError
 } = await supabaseClient
@@ -596,6 +611,20 @@
     })
     .select()
     .single();
+
+if (postError) {
+
+    console.error("POST ERROR:", postError);
+
+    button.disabled = false;
+
+    message.textContent =
+        "خطای انتشار: " + postError.message;
+
+    return;
+}
+
+console.log("POST CREATED:", post);
 
 if (postError) {
 
