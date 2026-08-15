@@ -318,7 +318,14 @@ const SUPABASE_ANON_KEY =
 const supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
-        SUPABASE_ANON_KEY
+        SUPABASE_ANON_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        }
     );
 
 
@@ -334,29 +341,32 @@ async function checkWriterAccess() {
 
     const {
         data: {
-            session
-        }
-    } = await supabaseClient.auth.getSession();
+            user
+        },
+        error: userError
+    } = await supabaseClient.auth.getUser();
 
-    if (!session || !session.user) {
+
+    console.log("CURRENT USER:", user);
+    console.log("USER ERROR:", userError);
+
+
+    if (userError || !user) {
 
         showLoginMessage(
-            "برای ورود به بخش نویسندگان ابتدا باید وارد حساب شوید."
+            "جلسهٔ ورود پیدا نشد. دوباره وارد شوید."
         );
 
         return false;
     }
 
-    currentUser = session.user;
 
+    currentUser = user;
 
-    /* -----------------------------
-       دریافت پروفایل
-    ----------------------------- */
 
     const {
         data: profile,
-        error
+        error: profileError
     } = await supabaseClient
         .from("profiles")
         .select(`
@@ -366,16 +376,19 @@ async function checkWriterAccess() {
             pen_name,
             role
         `)
-        .eq("id", currentUser.id)
+        .eq("id", user.id)
         .maybeSingle();
 
 
-    if (error) {
+    console.log("PROFILE:", profile);
+    console.log("PROFILE ERROR:", profileError);
 
-        console.error("PROFILE ERROR:", error);
+
+    if (profileError) {
 
         showLoginMessage(
-            "خطا در دریافت اطلاعات حساب."
+            "خطا در خواندن پروفایل: " +
+            profileError.message
         );
 
         return false;
@@ -385,7 +398,7 @@ async function checkWriterAccess() {
     if (!profile) {
 
         showLoginMessage(
-            "پروفایل این حساب پیدا نشد."
+            "برای این حساب پروفایل پیدا نشد."
         );
 
         return false;
@@ -395,32 +408,23 @@ async function checkWriterAccess() {
     currentProfile = profile;
 
 
-    /* -----------------------------
-       بررسی نقش
-    ----------------------------- */
-
     if (
         profile.role !== "writer" &&
         profile.role !== "owner"
     ) {
 
         showLoginMessage(
-            "این بخش فقط برای نویسندگان و مالک پارادوکس است."
+            "این حساب اجازهٔ ورود به بخش نویسندگان را ندارد."
         );
 
         return false;
     }
 
 
-    /*
-     * فرم اصلی را نمایش می‌دهیم
-     */
-
     renderWriterPage(profile);
 
     return true;
 }
-
 
 /* -----------------------------
    نمایش فرم نویسندگی
