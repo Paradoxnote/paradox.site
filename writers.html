@@ -309,377 +309,418 @@
 
 <script>
 
-    const SUPABASE_URL = "https://ordoglrqdizeisyoupsf.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+const SUPABASE_URL =
+    "https://ordoglrqdizeisyoupsf.supabase.co";
 
-    const supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY
+const SUPABASE_ANON_KEY =
+    "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+
+let currentUser = null;
+let currentProfile = null;
+
+
+/* -----------------------------
+   بررسی ورود
+----------------------------- */
+
+async function checkWriterAccess() {
+
+    const {
+        data: {
+            session
+        }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session || !session.user) {
+
+        showLoginMessage(
+            "برای ورود به بخش نویسندگان ابتدا باید وارد حساب شوید."
         );
 
+        return false;
+    }
 
-    let currentUser = null;
-    let currentProfile = null;
-
-
-    async function checkWriterAccess() {
-
-        const {
-            data: {
-                user
-            }
-        } = await supabaseClient.auth.getUser();
+    currentUser = session.user;
 
 
-        if (!user) {
+    /* -----------------------------
+       دریافت پروفایل
+    ----------------------------- */
 
-            showLoginMessage(
-                "برای ورود به بخش نویسندگان ابتدا باید وارد حساب شوید."
-            );
-
-            return false;
-        }
-
-
-        currentUser = user;
-
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
+    const {
+        data: profile,
+        error
+    } = await supabaseClient
+        .from("profiles")
+        .select(`
+            id,
+            username,
+            display_name,
+            pen_name,
+            role
+        `)
+        .eq("id", currentUser.id)
+        .maybeSingle();
 
 
-        if (error || !data) {
+    if (error) {
 
-            showLoginMessage(
-                "اطلاعات حساب شما پیدا نشد."
-            );
+        console.error("PROFILE ERROR:", error);
 
-            return false;
-        }
+        showLoginMessage(
+            "خطا در دریافت اطلاعات حساب."
+        );
 
-
-        currentProfile = data;
-
-
-        if (
-            data.role !== "owner" &&
-            data.role !== "writer"
-        ) {
-
-            showLoginMessage(
-                "این بخش فقط برای نویسندگان و مالک پارادوکس است."
-            );
-
-            return false;
-        }
+        return false;
+    }
 
 
-        document.getElementById("pageContent").innerHTML = `
-            <h1>انتشار نوشته</h1>
+    if (!profile) {
 
-            <p class="intro">
-                نویسنده:
-                ${escapeHtml(data.pen_name || data.display_name || "بدون لقب")}
-            </p>
+        showLoginMessage(
+            "پروفایل این حساب پیدا نشد."
+        );
 
-            <form id="postForm">
+        return false;
+    }
 
-                <label for="title">
-                    عنوان نوشته
-                </label>
+
+    currentProfile = profile;
+
+
+    /* -----------------------------
+       بررسی نقش
+    ----------------------------- */
+
+    if (
+        profile.role !== "writer" &&
+        profile.role !== "owner"
+    ) {
+
+        showLoginMessage(
+            "این بخش فقط برای نویسندگان و مالک پارادوکس است."
+        );
+
+        return false;
+    }
+
+
+    /*
+     * فرم اصلی را نمایش می‌دهیم
+     */
+
+    renderWriterPage(profile);
+
+    return true;
+}
+
+
+/* -----------------------------
+   نمایش فرم نویسندگی
+----------------------------- */
+
+function renderWriterPage(profile) {
+
+    const name =
+        profile.pen_name ||
+        profile.display_name ||
+        "نویسنده پارادوکس";
+
+
+    document.getElementById(
+        "pageContent"
+    ).innerHTML = `
+
+        <h1>
+            انتشار نوشته
+        </h1>
+
+        <p class="intro">
+            نویسنده:
+            ${escapeHtml(name)}
+        </p>
+
+        <form
+            id="postForm"
+            onsubmit="publishPost(event); return false;"
+        >
+
+            <label for="title">
+                عنوان نوشته
+            </label>
+
+            <input
+                id="title"
+                type="text"
+                maxlength="200"
+                required
+            >
+
+
+            <label for="content">
+                متن نوشته
+            </label>
+
+            <textarea
+                id="content"
+                required
+            ></textarea>
+
+
+            <label>
+                فایل‌های همراه نوشته
+            </label>
+
+            <div class="file-box">
 
                 <input
-                    id="title"
-                    type="text"
-                    maxlength="200"
+                    id="mediaFiles"
+                    type="file"
+                    multiple
+                    accept="image/*,video/*,.pdf,.zip,.rar,.txt,.doc,.docx"
+                >
+
+                <div class="file-help">
+                    می‌توانی تصویر، ویدئو یا فایل همراه نوشته منتشر کنی.
+                </div>
+
+            </div>
+
+
+            <div class="responsibility">
+
+                <input
+                    id="responsibility"
+                    type="checkbox"
                     required
                 >
 
-                <label for="content">
-                    متن نوشته
+                <label for="responsibility">
+                    می‌پذیرم که تمام مسئولیت مطالب و فایل‌هایی
+                    که با این حساب منتشر می‌شوند بر عهدهٔ خودم است.
                 </label>
-
-                <textarea
-                    id="content"
-                    required
-                ></textarea>
-
-                <label>
-                    فایل‌های همراه نوشته
-                </label>
-
-                <div class="file-box">
-
-                    <input
-                        id="mediaFiles"
-                        type="file"
-                        multiple
-                        accept="image/*,video/*,.pdf,.zip,.rar,.txt,.doc,.docx"
-                    >
-
-                    <div class="file-help">
-                        تصویر، ویدئو یا فایل مورد نیازت را انتخاب کن.
-                    </div>
-
-                </div>
-
-                <div class="responsibility">
-
-                    <input
-                        id="responsibility"
-                        type="checkbox"
-                        required
-                    >
-
-                    <label for="responsibility">
-                        می‌پذیرم که تمام مسئولیت مطالب و فایل‌هایی که با حساب من
-                        منتشر می‌شوند بر عهدهٔ خودم است.
-                    </label>
-
-                </div>
-
-                <button id="publishButton" type="submit">
-                    انتشار نوشته
-                </button>
-
-            </form>
-
-            <div id="message" class="message"></div>
-        `;
-
-
-        document
-            .getElementById("postForm")
-            .addEventListener(
-                "submit",
-                publishPost
-            );
-
-
-        return true;
-    }
-
-
-    function showLoginMessage(text) {
-
-        document.getElementById("pageContent").innerHTML = `
-            <div class="login-box">
-
-                <h1>دسترسی محدود</h1>
-
-                <p>
-                    ${escapeHtml(text)}
-                </p>
-
-                <a href="login.html">
-                    رفتن به صفحه ورود
-                </a>
 
             </div>
-        `;
+
+
+            <button
+                id="publishButton"
+                type="submit"
+            >
+                انتشار نوشته
+            </button>
+
+        </form>
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+    `;
+}
+
+
+/* -----------------------------
+   پیام دسترسی
+----------------------------- */
+
+function showLoginMessage(text) {
+
+    document.getElementById(
+        "pageContent"
+    ).innerHTML = `
+
+        <div class="login-box">
+
+            <h1>
+                دسترسی محدود
+            </h1>
+
+            <p>
+                ${escapeHtml(text)}
+            </p>
+
+            <a href="writers-login.html">
+                ورود نویسندگان
+            </a>
+
+        </div>
+    `;
+}
+
+
+/* -----------------------------
+   انتشار نوشته
+----------------------------- */
+
+async function publishPost(event) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+
+    const title =
+        document
+            .getElementById("title")
+            .value
+            .trim();
+
+
+    const content =
+        document
+            .getElementById("content")
+            .value
+            .trim();
+
+
+    const responsibility =
+        document.getElementById(
+            "responsibility"
+        ).checked;
+
+
+    const files =
+        Array.from(
+            document
+                .getElementById("mediaFiles")
+                .files
+        );
+
+
+    const message =
+        document.getElementById("message");
+
+
+    const button =
+        document.getElementById("publishButton");
+
+
+    if (!title || !content) {
+
+        message.textContent =
+            "عنوان و متن نوشته را وارد کن.";
+
+        return;
     }
 
 
-    async function publishPost(event) {
-event.preventDefault();
-event.stopPropagation();
-        event.preventDefault();
+    if (!responsibility) {
+
+        message.textContent =
+            "پذیرش مسئولیت را تأیید کن.";
+
+        return;
+    }
 
 
-        const title =
-            document
-                .getElementById("title")
-                .value
-                .trim();
+    button.disabled = true;
+
+    message.textContent =
+        "در حال انتشار...";
 
 
-        const content =
-            document
-                .getElementById("content")
-                .value
-                .trim();
+    /* ثبت پذیرش مسئولیت */
 
-
-        const responsibility =
-            document.getElementById(
-                "responsibility"
-            ).checked;
-
-
-        const files =
-            Array.from(
-                document
-                    .getElementById("mediaFiles")
-                    .files
+    const {
+        error: responsibilityError
+    } =
+        await supabaseClient
+            .from("profiles")
+            .update({
+                responsibility_accepted_at:
+                    new Date().toISOString()
+            })
+            .eq(
+                "id",
+                currentUser.id
             );
 
 
-        const message =
-            document.getElementById("message");
+    if (responsibilityError) {
 
-
-        const button =
-            document.getElementById("publishButton");
-
-
-        if (!responsibility) {
-
-            message.textContent =
-                "ابتدا باید پذیرش مسئولیت را تأیید کنی.";
-
-            return;
-        }
-
-
-        if (!title || !content) {
-
-            message.textContent =
-                "عنوان و متن نوشته را وارد کن.";
-
-            return;
-        }
-
-
-        button.disabled = true;
+        console.error(
+            "RESPONSIBILITY ERROR:",
+            responsibilityError
+        );
 
         message.textContent =
-            "در حال انتشار نوشته...";
+            "خطا در ثبت مسئولیت: " +
+            responsibilityError.message;
+
+        button.disabled = false;
+
+        return;
+    }
 
 
-        /*
-         * اول پذیرش مسئولیت را ثبت می‌کنیم.
-         */
+    /* ساخت نوشته */
+
+    const {
+        data: post,
+        error: postError
+    } =
+        await supabaseClient
+            .from("posts")
+            .insert({
+                author_id: currentUser.id,
+                title: title,
+                content: content,
+                responsibility_acknowledged: true,
+                published: true
+            })
+            .select()
+            .single();
+
+
+    if (postError) {
+
+        console.error(
+            "POST ERROR:",
+            postError
+        );
+
+        message.textContent =
+            "خطای انتشار: " +
+            postError.message;
+
+        button.disabled = false;
+
+        return;
+    }
+
+
+    /* بارگذاری فایل‌ها */
+
+    for (const file of files) {
+
+        const safeName =
+            file.name.replace(
+                /[^a-zA-Z0-9._-]/g,
+                "_"
+            );
+
+
+        const filePath =
+            currentUser.id +
+            "/" +
+            post.id +
+            "/" +
+            Date.now() +
+            "_" +
+            safeName;
+
 
         const {
-            error: responsibilityError
-        } = await supabaseClient
-            .from("profiles")
-            .update({
-                responsibility_accepted_at: new Date().toISOString()
-            })
-            .eq("id", currentUser.id);
-if (responsibilityError) {
-
-    console.error(
-        "RESPONSIBILITY ERROR:",
-        responsibilityError
-    );
-
-    button.disabled = false;
-
-    message.textContent =
-        "خطا در ثبت مسئولیت: " +
-        responsibilityError.message;
-
-    return;
-}
-
-        if (responsibilityError) {
-
-            button.disabled = false;
-
-            message.textContent =
-                "خطا در ثبت پذیرش مسئولیت: " +
-                responsibilityError.message;
-
-            return;
-        }
-
-
-        /*
-         * ساخت نوشته
-         */
-
-     const {
-    data: post,
-    error: postError
-} = await supabaseClient
-    .from("posts")
-    .insert({
-        author_id: currentUser.id,
-        title: title,
-        content: content,
-        responsibility_acknowledged: true,
-        published: true
-    })
-    .select()
-    .single();
-
-if (postError) {
-
-    console.error("POST ERROR:", postError);
-
-    button.disabled = false;
-
-    message.textContent =
-        "خطای انتشار: " + postError.message;
-
-    return;
-}
-
-console.log("POST CREATED:", post);
-
-if (postError) {
-
-    console.error("POST ERROR:", postError);
-
-    button.disabled = false;
-
-    message.textContent =
-        "خطای انتشار: " + postError.message;
-
-    return;
-}
-
-console.log("POST CREATED:", post);
-
-
-        if (postError) {
-
-            button.disabled = false;
-
-            message.textContent =
-                "خطا در انتشار نوشته: " +
-                postError.message;
-
-            return;
-        }
-
-
-        /*
-         * بارگذاری فایل‌ها
-         */
-
-        for (const file of files) {
-
-            const safeName =
-                file.name
-                    .replace(
-                        /[^a-zA-Z0-9._-]/g,
-                        "_"
-                    );
-
-
-            const filePath =
-                currentUser.id +
-                "/" +
-                post.id +
-                "/" +
-                Date.now() +
-                "_" +
-                safeName;
-
-
-            const {
-                error: uploadError
-            } = await supabaseClient
+            error: uploadError
+        } =
+            await supabaseClient
                 .storage
                 .from("post-media")
                 .upload(
@@ -692,76 +733,81 @@ console.log("POST CREATED:", post);
                 );
 
 
-            if (uploadError) {
+        if (uploadError) {
 
-                console.error(
-                    "Upload error:",
-                    uploadError
-                );
+            console.error(
+                "UPLOAD ERROR:",
+                uploadError
+            );
 
-                continue;
-            }
-
-
-            const {
-                data: publicData
-            } =
-                supabaseClient
-                    .storage
-                    .from("post-media")
-                    .getPublicUrl(
-                        filePath
-                    );
-
-
-            await supabaseClient
-                .from("post_media")
-                .insert({
-
-                    post_id: post.id,
-
-                    uploader_id: currentUser.id,
-
-                    file_name: file.name,
-
-                    file_path: publicData.publicUrl,
-
-                    mime_type: file.type,
-
-                    file_size: file.size
-
-                });
+            continue;
         }
 
 
-        button.disabled = false;
+        const {
+            data: publicData
+        } =
+            supabaseClient
+                .storage
+                .from("post-media")
+                .getPublicUrl(
+                    filePath
+                );
 
 
-        message.textContent =
-            "نوشته با موفقیت منتشر شد.";
+        const {
+            error: mediaError
+        } =
+            await supabaseClient
+                .from("post_media")
+                .insert({
+                    post_id: post.id,
+                    uploader_id: currentUser.id,
+                    file_name: file.name,
+                    file_path: publicData.publicUrl,
+                    mime_type: file.type,
+                    file_size: file.size
+                });
 
 
-        document
-            .getElementById("postForm")
-            .reset();
+        if (mediaError) {
 
+            console.error(
+                "MEDIA DATABASE ERROR:",
+                mediaError
+            );
+        }
     }
 
 
-    function escapeHtml(text) {
+    button.disabled = false;
 
-        return String(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+    message.textContent =
+        "نوشته با موفقیت منتشر شد.";
+
+    document
+        .getElementById("postForm")
+        .reset();
+}
 
 
-    checkWriterAccess();
+/* -----------------------------
+   جلوگیری از HTML در متن
+----------------------------- */
+
+function escapeHtml(text) {
+
+    return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* شروع */
+
+checkWriterAccess();
 
 </script>
-
-</body>
-</html>
