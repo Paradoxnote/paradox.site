@@ -1,0 +1,103 @@
+name: Update Sitemap
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Get repository
+        uses: actions/checkout@v4
+
+      - name: Update sitemap
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+          from xml.sax.saxutils import escape
+
+          supabase_url = os.environ["SUPABASE_URL"].rstrip("/")
+          supabase_key = os.environ["SUPABASE_KEY"]
+
+          api_url = (
+              supabase_url
+              + "/rest/v1/posts"
+              + "?select=id,updated_at"
+              + "&published=eq.true"
+              + "&order=updated_at.desc"
+          )
+
+          request = urllib.request.Request(
+              api_url,
+              headers={
+                  "apikey": supabase_key,
+                  "Authorization": f"Bearer {supabase_key}"
+              }
+          )
+
+          with urllib.request.urlopen(request) as response:
+              posts = json.loads(response.read().decode("utf-8"))
+
+          base_url = "https://paradoxnote.github.io/paradox.site"
+
+          urls = [
+              f"{base_url}/",
+              f"{base_url}/main.html"
+          ]
+
+          lines = [
+              '<?xml version="1.0" encoding="UTF-8"?>',
+              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+          ]
+
+          for url in urls:
+              lines.append("  <url>")
+              lines.append(f"    <loc>{escape(url)}</loc>")
+              lines.append("  </url>")
+
+          for post in posts:
+              post_id = urllib.parse.quote(str(post["id"]))
+              url = f"{base_url}/post.html?id={post_id}"
+
+              lines.append("  <url>")
+              lines.append(f"    <loc>{escape(url)}</loc>")
+
+              if post.get("updated_at"):
+                  lastmod = str(post["updated_at"])
+                  lines.append(f"    <lastmod>{escape(lastmod)}</lastmod>")
+
+              lines.append("  </url>")
+
+          lines.append("</urlset>")
+
+          with open("sitemap.xml", "w", encoding="utf-8") as file:
+              file.write("\n".join(lines) + "\n")
+
+          print(f"Sitemap updated. Posts: {len(posts)}")
+          PY
+
+      - name: Commit sitemap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add sitemap.xml
+
+          if git diff --cached --quiet; then
+            echo "No sitemap changes."
+          else
+            git commit -m "Update sitemap"
+            git push
+          fi
