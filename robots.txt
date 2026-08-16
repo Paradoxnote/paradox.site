@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://paradoxnote.github.io/paradox.site/sitemap.xml
