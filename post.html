@@ -452,13 +452,83 @@
 
             return;
         }
+const pageTitle =
+    `${post.title} | پارادوکس`;
 
+document.title = pageTitle;
+
+
+const description =
+    post.content
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 155);
+
+
+document
+    .getElementById("metaDescription")
+    .setAttribute(
+        "content",
+        description
+    );
+
+
+document
+    .getElementById("ogTitle")
+    .setAttribute(
+        "content",
+        pageTitle
+    );
+
+
+document
+    .getElementById("ogDescription")
+    .setAttribute(
+        "content",
+        description
+    );
+
+
+const currentUrl =
+    window.location.href;
+
+
+document
+    .getElementById("canonicalUrl")
+    .setAttribute(
+        "href",
+        currentUrl
+    );
+
+
+document
+    .getElementById("ogUrl")
+    .setAttribute(
+        "content",
+        currentUrl
+    );
 
         const author =
             post.profiles?.pen_name ||
             post.profiles?.display_name ||
             "نویسنده پارادوکس";
+const mainImage =
+    (post.post_media || []).find(
+        file =>
+            file.mime_type &&
+            file.mime_type.startsWith("image/")
+    );
 
+
+if (mainImage) {
+
+    document
+        .getElementById("ogImage")
+        .setAttribute(
+            "content",
+            mainImage.file_path
+        );
+}
 
         let mediaHtml = "";
 
